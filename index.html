@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>競馬予想AI - 最適投資戦略システム</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --border: #30363d;
+    --gold: #d4af37;
+    --gold2: #f0c040;
+    --red: #c0392b;
+    --green: #27ae60;
+    --blue: #2980b9;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --win1: #f1c40f;
+    --win2: #e74c3c;
+    --win3: #3498db;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic Pro', 'Meiryo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    background: linear-gradient(135deg, #1a0a0a 0%, #2d1515 40%, #1a0a0a 100%);
+    border-bottom: 2px solid var(--gold);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header .logo { font-size: 2rem; }
+  header h1 { font-size: 1.5rem; color: var(--gold2); letter-spacing: 2px; }
+  header p { font-size: 0.8rem; color: var(--text2); margin-top: 2px; }
+
+  /* ===== LAYOUT ===== */
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  @media (max-width: 1024px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card h2 {
+    font-size: 1rem;
+    color: var(--gold);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ===== RACE SELECTOR ===== */
+  .race-select-wrap { position: relative; }
+  select, input[type="number"], input[type="text"] {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  select:focus, input:focus { border-color: var(--gold); }
+  select { cursor: pointer; }
+
+  .race-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: bold;
+  }
+  .badge-g1 { background: #7d1a1a; color: #ffcdd2; border: 1px solid #c0392b; }
+  .badge-surf { background: #1a3a1a; color: #a8d5a2; border: 1px solid #27ae60; }
+  .badge-dist { background: #1a2a3a; color: #a2c4d5; border: 1px solid #2980b9; }
+  .badge-cond { background: #2a2a1a; color: #d5cca2; border: 1px solid #c9a227; }
+
+  /* ===== BETTING FORM ===== */
+  .form-group { margin-bottom: 14px; }
+  .form-group label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text2);
+    margin-bottom: 6px;
+  }
+  .form-group .hint {
+    font-size: 0.75rem;
+    color: var(--text2);
+    margin-top: 4px;
+  }
+
+  .input-prefix {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .input-prefix span {
+    position: absolute;
+    right: 12px;
+    color: var(--text2);
+    font-size: 0.85rem;
+    pointer-events: none;
+  }
+  .input-prefix input { padding-right: 32px; }
+
+  .btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold) 0%, #b8860b 100%);
+    color: #1a0a00;
+  }
+  .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* ===== HORSE TABLE ===== */
+  .horse-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .horse-table th {
+    padding: 8px 10px;
+    text-align: left;
+    color: var(--text2);
+    font-weight: normal;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .horse-table td {
+    padding: 10px 10px;
+    border-bottom: 1px solid #1c2128;
+    vertical-align: middle;
+  }
+  .horse-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .num-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 0.85rem;
+  }
+
+  .horse-name { font-weight: bold; color: var(--text); }
+  .horse-detail { font-size: 0.75rem; color: var(--text2); }
+
+  .prob-bar-wrap { position: relative; height: 6px; background: var(--bg3); border-radius: 3px; min-width: 80px; }
+  .prob-bar { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+  .prob-label { font-size: 0.8rem; font-weight: bold; text-align: right; }
+
+  .rank-1 { color: var(--win1); }
+  .rank-2 { color: var(--text2); }
+  .rank-3 { color: #cd7f32; }
+
+  .trend {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+  }
+  .trend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  /* ===== RESULTS SECTION ===== */
+  .section-title {
+    font-size: 1.1rem;
+    color: var(--gold);
+    margin: 24px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .strategy-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    position: relative;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .strategy-card:hover { transform: translateY(-2px); }
+  .strategy-card.best {
+    border-color: var(--gold);
+    background: linear-gradient(135deg, #1a1500 0%, #211c00 100%);
+  }
+  .best-badge {
+    position: absolute;
+    top: -10px;
+    right: 16px;
+    background: var(--gold);
+    color: #1a0a00;
+    padding: 2px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+  }
+
+  .strategy-type {
+    font-size: 0.75rem;
+    color: var(--text2);
+    margin-bottom: 4px;
+  }
+  .strategy-name {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .strategy-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .stat-item label {
+    font-size: 0.72rem;
+    color: var(--text2);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .stat-item .value {
+    font-size: 1.1rem;
+    font-weight: bold;
+  }
+  .value-green { color: var(--green); }
+  .value-gold { color: var(--gold2); }
+  .value-blue { color: #5dade2; }
+  .value-red { color: #e74c3c; }
+
+  .strategy-bets { margin-top: 12px; }
+  .bet-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--bg3);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+  }
+  .bet-horse { font-weight: bold; }
+  .bet-amount { color: var(--gold2); font-weight: bold; }
+
+  .ev-bar-wrap { margin-top: 12px; }
+  .ev-bar-label { font-size: 0.75rem; color: var(--text2); margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .ev-bar-bg { height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+  .ev-bar { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+  .ev-positive { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+  .ev-negative { background: linear-gradient(90deg, #c0392b, #e74c3c); }
+
+  /* ===== PROBABILITY CHART ===== */
+  .chart-container {
+    position: relative;
+    height: 220px;
+    margin-top: 8px;
+  }
+
+  .donut-chart {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .donut-svg { flex-shrink: 0; }
+  .donut-legend { flex: 1; }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 0.82rem;
+  }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-pct { margin-left: auto; font-weight: bold; }
+
+  /* ===== LOADING / EMPTY STATE ===== */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text2);
+  }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+    color: var(--text2);
+  }
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== ALERT ===== */
+  .alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+  }
+  .alert-warning {
+    background: #2a2000;
+    border: 1px solid #8a6000;
+    color: #ffd700;
+  }
+  .alert-info {
+    background: #001a2a;
+    border: 1px solid #004080;
+    color: #80c0ff;
+  }
+
+  /* ===== TABS ===== */
+  .tabs { display: flex; gap: 0; margin-bottom: 16px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .tab {
+    flex: 1;
+    padding: 8px;
+    background: var(--bg3);
+    border: none;
+    color: var(--text2);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .tab.active { background: var(--gold); color: #1a0a00; font-weight: bold; }
+
+  /* ===== FACTOR BARS ===== */
+  .factor-list { margin-top: 8px; }
+  .factor-item {
+    display: grid;
+    grid-template-columns: 80px 1fr 40px;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 0.82rem;
+  }
+  .factor-name { color: var(--text2); }
+  .factor-bar-bg { height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+  .factor-bar { height: 100%; border-radius: 3px; }
+  .factor-val { text-align: right; font-weight: bold; }
+
+  /* ===== RESPONSIVE TABLE SCROLL ===== */
+  .table-scroll { overflow-x: auto; }
+
+  /* ===== SEPARATOR ===== */
+  hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  /* ===== HORSE COLORS ===== */
+  .hc-1  { background: #f1c40f; color: #000; }
+  .hc-2  { background: #e74c3c; color: #fff; }
+  .hc-3  { background: #2980b9; color: #fff; }
+  .hc-4  { background: #27ae60; color: #fff; }
+  .hc-5  { background: #8e44ad; color: #fff; }
+  .hc-6  { background: #e67e22; color: #fff; }
+  .hc-7  { background: #1abc9c; color: #fff; }
+  .hc-8  { background: #34495e; color: #fff; }
+  .hc-9  { background: #d35400; color: #fff; }
+  .hc-10 { background: #7f8c8d; color: #fff; }
+  .hc-11 { background: #2c3e50; color: #fff; }
+  .hc-12 { background: #c0392b; color: #fff; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🏇</div>
+  <div>
+    <h1>競馬予想AI</h1>
+    <p>データ分析 × 最適投資戦略システム</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ===== TOP ROW: レース選択 + 投資設定 ===== -->
+  <div class="grid-2" style="margin-bottom:20px">
+
+    <!-- レース選択 -->
+    <div class="card">
+      <h2>📋 レース選択</h2>
+      <div class="form-group">
+        <label>対象レース</label>
+        <select id="race-select">
+          <option value="">-- レースを選択してください --</option>
+        </select>
+      </div>
+      <div id="race-meta" class="race-meta" style="display:none"></div>
+      <div id="race-desc" style="margin-top:12px;font-size:0.82rem;color:var(--text2);display:none"></div>
+    </div>
+
+    <!-- 投資設定 -->
+    <div class="card">
+      <h2>💰 投資設定</h2>
+      <div class="form-group">
+        <label>賭け金 (合計予算)</label>
+        <div class="input-prefix">
+          <input type="number" id="budget" value="10000" min="100" step="100">
+          <span>円</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>目標リターン</label>
+        <div class="input-prefix">
+          <input type="number" id="target-return" value="30000" min="100" step="1000">
+          <span>円</span>
+        </div>
+        <div class="hint" id="multiplier-hint"></div>
+      </div>
+      <div class="form-group">
+        <label>馬場状態 (上書き)</label>
+        <select id="condition-override">
+          <option value="">レース設定を使用</option>
+          <option value="良">良</option>
+          <option value="稍重">稍重</option>
+          <option value="重">重</option>
+          <option value="不良">不良</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" id="analyze-btn" disabled>
+        🔍 予想・最適戦略を計算する
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== 出馬表 ===== -->
+  <div class="card" id="horses-card" style="display:none;margin-bottom:20px">
+    <h2>🐴 出走馬一覧 & 予想オッズ</h2>
+    <div class="alert alert-warning" style="margin-bottom:14px">
+      📋 <strong>日本ダービー（5/31）</strong>は実際の出走馬・騎手・前日オッズを使用しています（出典：JRA公式・netkeiba・各競馬メディア）。近走戦績・適性スコアは公開情報をもとに構築しています。宝塚記念・安田記念はサンプルデータです。
+    </div>
+    <div class="alert alert-info" style="margin-bottom:14px">
+      📊 予想根拠：戦績（勝率・複勝率）・馬場適性・距離適性・最近5走の調子・騎手勝率・市場オッズとの乖離を総合スコア化して予想確率を算出しています
+    </div>
+    <div class="table-scroll">
+      <table class="horse-table" id="horse-table">
+        <thead>
+          <tr>
+            <th>枠</th>
+            <th>馬名</th>
+            <th>騎手</th>
+            <th>戦績</th>
+            <th>最近5走</th>
+            <th>勝利確率</th>
+            <th>複勝確率</th>
+            <th>市場オッズ / 評価</th>
+          </tr>
+        </thead>
+        <tbody id="horse-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 分析結果 ===== -->
+  <div id="results-section" style="display:none">
+
+    <div class="grid-2" style="margin-bottom:20px">
+      <!-- 勝利確率チャート -->
+      <div class="card">
+        <h2>📊 勝利確率分布</h2>
+        <div id="prob-chart"></div>
+      </div>
+
+      <!-- 総合スコア詳細 -->
+      <div class="card">
+        <h2>🔬 分析ファクター詳細</h2>
+        <div style="margin-bottom:12px">
+          <select id="detail-horse-select" style="width:100%">
+          </select>
+        </div>
+        <div id="factor-detail" class="factor-list"></div>
+      </div>
+    </div>
+
+    <!-- 推奨戦略 -->
+    <div class="section-title">
+      🎯 推奨投資戦略
+      <span style="font-size:0.8rem;color:var(--text2);font-weight:normal;margin-left:auto">
+        目標: <span id="strategy-target-label" style="color:var(--gold2)"></span>
+      </span>
+    </div>
+
+    <div id="strategies-grid" class="grid-3" style="margin-bottom:24px"></div>
+
+    <!-- 注意事項 -->
+    <div class="alert alert-warning">
+      ⚠️ このアプリは参考情報の提供を目的としています。実際の賭けにおける損失に対して責任を負いません。競馬は合法的な娯楽として適度に楽しんでください。
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// データ定義
+// ============================================================
+const RACES = [
+  {
+    id: "derby2026",
+    name: "第93回 東京優駿（日本ダービー）",
+    venue: "東京競馬場",
+    grade: "G1",
+    raceNo: "11R",
+    date: "2026-05-31",
+    distance: 2400,
+    surface: "芝",
+    trackCondition: "良",
+    weather: "晴",
+    desc: "3歳クラシック第2冠。ホープフルS・皐月賞2冠のロブチェン（松山）が史上初の快挙に挑む。対抗は皐月賞2着・東京2戦2勝のリアライズシリウス（津村）。青葉賞同距離勝ちのゴーイントゥスカイ（武豊）、無敗のコンジェスタス（西村）も要注意。東京芝2400m・前日1番人気ロブチェン3.2倍。",
+    horses: [
+      {
+        number: 1, name: "ライヒスアドラー", age: 3, sex: "牡",
+        weight: 474, jockey: "佐々木大輔", trainer: "木村哲也", odds: 11.4,
+        stats: { wins: 1, second: 1, third: 1, total: 4 },
+        trackPerf: { "良": 88, "稍重": 80, "重": 72, "不良": 60 },
+        surfPerf: { "芝": 90, "ダート": 40 },
+        distPerf: { sprint: 52, mile: 74, middle: 88, long: 85 },
+        jockeyWinRate: 0.08,
+        recentRaces: [
+          { pos: 1, total: 10, name: "新馬" },
+          { pos: 4, total: 14, name: "百日草特別" },
+          { pos: 2, total: 14, name: "弥生賞" },
+          { pos: 3, total: 18, name: "皐月賞" }
+        ]
+      },
+      {
+        number: 2, name: "マテンロウゲイル", age: 3, sex: "牡",
+        weight: 472, jockey: "横山和生", trainer: "昆貢", odds: 32.8,
+        stats: { wins: 2, second: 1, third: 1, total: 6 },
+        trackPerf: { "良": 75, "稍重": 72, "重": 68, "不良": 60 },
+        surfPerf: { "芝": 80, "ダート": 42 },
+        distPerf: { sprint: 60, mile: 76, middle: 78, long: 72 },
+        jockeyWinRate: 0.09,
+        recentRaces: [
+          { pos: 1, total: 10, name: "新馬" },
+          { pos: 3, total: 12, name: "1勝クラス" },
+          { pos: 1, total: 12, name: "1勝クラス" },
+          { pos: 2, total: 14, name: "京成杯" },
+          { pos: 5, total: 16, name: "弥生賞" },
+          { pos: 10, total: 18, name: "皐月賞" }
+        ]
+      },
+      {
+        number: 3, name: "ケントン", age: 3, sex: "牡",
+        weight: 464, jockey: "丹内祐次", trainer: "鹿戸雄一", odds: 250.5,
+        stats: { wins: 2, second: 1, third: 0, total: 6 },
+        trackPerf: { "良": 64, "稍重": 64, "重": 60, "不良": 55 },
+        surfPerf: { "芝": 68, "ダート": 52 },
+        distPerf: { sprint: 55, mile: 65, middle: 70, long: 62 },
+        jockeyWinRate: 0.06,
+        recentRaces: [
+          { pos: 1, total: 10, name: "新馬" },
+          { pos: 2, total: 12, name: "未勝利" },
+          { pos: 1, total: 12, name: "1勝クラス" },
+          { pos: 7, total: 14, name: "1勝クラス" },
+          { pos: 8, total: 14, name: "2勝クラス" },
+          { pos: 10, total: 14, name: "青葉賞" }
+        ]
+      },
+      {
+        number: 4, name: "アルトラムス", age: 3, sex: "牡",
+        weight: 468, jockey: "横山武史", trainer: "矢作芳人", odds: 70.0,
+        stats: { wins: 2, second: 1, third: 0, total: 4 },
+        trackPerf: { "良": 78, "稍重": 72, "重": 65, "不良": 55 },
+        surfPerf: { "芝": 82, "ダート": 46 },
+        distPerf: { sprint: 62, mile: 80, middle: 82, long: 70 },
+        jockeyWinRate: 0.10,
+        recentRaces: [
+          { pos: 1, total: 10, name: "新馬" },
+          { pos: 2, total: 12, name: "1勝クラス" },
+          { pos: 1, total: 14, name: "毎日杯" },
+          { pos: 18, total: 18, name: "皐月賞" }
+        ]
+      },
+      {
+        number: 5, name: "バステール", age: 3, sex: "牡",
+        weight: 462, jockey: "川田将雅", trainer: "高橋文雅", odds: 25.4,
+        stats: { wins: 2, second: 0, third: 0, total: 4 },
+        trackPerf: { "良": 84, "稍重": 77, "重": 68, "不良": 58 },
+        surfPerf: { "芝": 86, "ダート": 40 },
+        distPerf: { sprint: 58, mile: 74, middle: 85, long: 83 },
+        jockeyWinRate: 0.17,
+        recentRaces: [
+          { pos: 1, total: 10, name: "新馬" },
+          { pos: 4, total: 14, name: "1勝クラス" },
+          { pos: 1, total: 14, name: "弥生賞" },
+          { pos: 11, total: 18, name: "皐月賞" }
+        ]
+      },
+      {
+        number: 6, name: "コンジェスタス", age: 3, sex: "牡",
+        weight: 488, jockey: "西村淳也", trainer: "奥村武", odds: 16.3,
+        stats: { wins: 3, second: 0, third: 0, total: 3 },
+        trackPerf: { "良": 92, "稍重": 82, "重": 72, "不良": 60 },
+        surfPerf: { "芝": 94, "ダート": 35 },
+        distPerf: { sprint: 52, mile: 72, middle: 88, long: 91 },
+        jockeyWinRate: 0.10,
+        recentRaces: [
+          { pos: 1, total: 12, name: "新馬" },
+          { pos: 1, total: 12, name: "1勝クラス" },
+          { pos: 1, total: 14, name: "京都新聞杯" }
+        ]
+      },
+      {
+        number: 7, name: "メイショウハチコウ", age: 3, sex: "牡",
+        weight: 484, jockey: "M.ディー", trainer: "梅田智之", odds: 75.0,
+        stats: { wins: 3, second: 0, third: 1, total: 5 },
+        trackPerf: { "良": 80, "稍重": 75, "重": 68, "不良": 58 },
+        surfPerf: { "芝": 82, "ダート": 48 },
+        distPerf: { sprint: 60, mile: 74, middle: 82, long: 78 },
+        jockeyWinRate: 0.10,
+        recentRaces: [
+          { pos: 1, total: 10, name: "新馬" },
+          { pos: 3, total: 12, name: "1勝クラス" },
+          { pos: 1, total: 12, name: "1勝クラス" },
+          { pos: 16, total: 16, name: "ホープフルS" },
+          { pos: 1, total: 14, name: "プリンシパルS" }
+        ]
+      },
+      {
+        number: 8, name: "ショウナンガルフ", age: 3, sex: "牡",
+        weight: 466, jockey: "浜中俊", trainer: "松下武士", odds: 130.0,
+        stats: { wins: 2, second: 0, third: 0, total: 6 },
+        trackPerf: { "良": 70, "稍重": 72, "重": 70, "不良": 64 },
+        surfPerf: { "芝": 74, "ダート": 50 },
+        distPerf: { sprint: 70, mile: 72, middle: 70, long: 62 },
+        jockeyWinRate: 0.09,
+        recentRaces: [
+          { pos: 1, total: 10, name: "新馬" },
+          { pos: 6, total: 12, name: "未勝利" },
+          { pos: 1, total: 14, name: "札幌2歳S" },
+          { pos: 5, total: 12, name: "1勝クラス" },
+          { pos: 7, total: 14, name: "1勝クラス" },
+          { pos: 14, total: 16, name: "ホープフルS" }
+        ]
+      },
+      {
+        number: 9, name: "アウダーシア", age: 3, sex: "牡",
+        weight: 476, jockey: "D.レーン", trainer: "宮本博", odds: 17.2,
+        stats: { wins: 2, second: 1, third: 0, total: 4 },
+        trackPerf: { "良": 86, "稍重": 78, "重": 68, "不良": 55 },
+        surfPerf: { "芝": 88, "ダート": 38 },
+        distPerf: { sprint: 58, mile: 80, middle: 85, long: 76 },
+        jockeyWinRate: 0.16,
+        recentRaces: [
+          { pos: 1, total: 10, name: "新馬" },
+          { pos: 4, total: 12, name: "1勝クラス" },
+          { pos: 2, total: 12, name: "1勝クラス" },
+          { pos: 1, total: 16, name: "スプリングS" }
+        ]
+      },
+      {
+        number: 10, name: "ジャスティンビスタ", age: 3, sex: "牡",
+        weight: 478, jockey: "坂井瑠星", trainer: "安田翔伍", odds: 50.0,
+        stats: { wins: 2, second: 0, third: 0, total: 3 },
+        trackPerf: { "良": 76, "稍重": 70, "重": 62, "不良": 52 },
+        surfPerf: { "芝": 78, "ダート": 45 },
+        distPerf: { sprint: 58, mile: 74, middle: 78, long: 72 },
+        jockeyWinRate: 0.12,
+        recentRaces: [
+          { pos: 1, total: 10, name: "新馬" },
+          { pos: 1, total: 12, name: "1勝クラス" },
+          { pos: 8, total: 16, name: "ホープフルS" }
+        ]
+      },
+      {
+        number: 11, name: "リアライズシリウス", age: 3, sex: "牡",
+        weight: 484, jockey: "津村明秀", trainer: "須貝尚介", odds: 5.3,
+        stats: { wins: 3, second: 1, third: 0, total: 5 },
+        trackPerf: { "良": 92, "稍重": 80, "重": 68, "不良": 56 },
+        surfPerf: { "芝": 94, "ダート": 36 },
+        distPerf: { sprint: 52, mile: 82, middle: 88, long: 91 },
+        jockeyWinRate: 0.09,
+        recentRaces: [
+          { pos: 1, total: 10, name: "新馬" },
+          { pos: 4, total: 12, name: "1勝クラス" },
+          { pos: 1, total: 14, name: "弥生賞" },
+          { pos: 1, total: 12, name: "共同通信杯" },
+          { pos: 2, total: 18, name: "皐月賞" }
+        ]
+      },
+      {
+        number: 12, name: "アスクエジンバラ", age: 3, sex: "牡",
+        weight: 460, jockey: "岩田康誠", trainer: "戸田博文", odds: 28.7,
+        stats: { wins: 2, second: 1, third: 2, total: 8 },
+        trackPerf: { "良": 82, "稍重": 78, "重": 72, "不良": 62 },
+        surfPerf: { "芝": 85, "ダート": 42 },
+        distPerf: { sprint: 54, mile: 76, middle: 85, long: 84 },
+        jockeyWinRate: 0.09,
+        recentRaces: [
+          { pos: 1, total: 10, name: "新馬" },
+          { pos: 3, total: 12, name: "未勝利" },
+          { pos: 5, total: 14, name: "1勝クラス" },
+          { pos: 1, total: 12, name: "1勝クラス" },
+          { pos: 3, total: 16, name: "ホープフルS" },
+          { pos: 2, total: 14, name: "弥生賞" },
+          { pos: 4, total: 18, name: "皐月賞" }
+        ]
+      },
+      {
+        number: 13, name: "パントルナイーフ", age: 3, sex: "牡",
+        weight: 480, jockey: "C.ルメール", trainer: "久保田貴士", odds: 22.8,
+        stats: { wins: 2, second: 1, third: 0, total: 4 },
+        trackPerf: { "良": 84, "稍重": 76, "重": 66, "不良": 54 },
+        surfPerf: { "芝": 88, "ダート": 38 },
+        distPerf: { sprint: 60, mile: 82, middle: 84, long: 78 },
+        jockeyWinRate: 0.22,
+        recentRaces: [
+          { pos: 1, total: 10, name: "新馬" },
+          { pos: 1, total: 14, name: "東スポ杯2歳S" },
+          { pos: 2, total: 14, name: "弥生賞" },
+          { pos: 14, total: 18, name: "皐月賞" }
+        ]
+      },
+      {
+        number: 14, name: "ゴーイントゥスカイ", age: 3, sex: "牡",
+        weight: 502, jockey: "武豊", trainer: "音無秀孝", odds: 13.8,
+        stats: { wins: 2, second: 1, third: 1, total: 6 },
+        trackPerf: { "良": 90, "稍重": 80, "重": 70, "不良": 58 },
+        surfPerf: { "芝": 92, "ダート": 38 },
+        distPerf: { sprint: 52, mile: 74, middle: 86, long: 96 },
+        jockeyWinRate: 0.13,
+        recentRaces: [
+          { pos: 1, total: 10, name: "新馬" },
+          { pos: 3, total: 12, name: "1勝クラス" },
+          { pos: 2, total: 14, name: "1勝クラス" },
+          { pos: 4, total: 14, name: "もみじS" },
+          { pos: 1, total: 12, name: "1勝クラス" },
+          { pos: 1, total: 14, name: "青葉賞" }
+        ]
+      },
+      {
+        number: 15, name: "フォルテアンジェロ", age: 3, sex: "牡",
+        weight: 452, jockey: "荻野極", trainer: "相沢郁", odds: 21.2,
+        stats: { wins: 1, second: 1, third: 0, total: 4 },
+        trackPerf: { "良": 84, "稍重": 78, "重": 70, "不良": 60 },
+        surfPerf: { "芝": 87, "ダート": 40 },
+        distPerf: { sprint: 52, mile: 74, middle: 84, long: 87 },
+        jockeyWinRate: 0.07,
+        recentRaces: [
+          { pos: 1, total: 10, name: "新馬" },
+          { pos: 4, total: 14, name: "1勝クラス" },
+          { pos: 2, total: 16, name: "ホープフルS" },
+          { pos: 5, total: 18, name: "皐月賞" }
+        ]
+      },
+      {
+        number: 16, name: "グリーンエナジー", age: 3, sex: "牡",
+        weight: 488, jockey: "戸崎圭太", trainer: "辻野泰之", odds: 6.3,
+        stats: { wins: 2, second: 0, third: 0, total: 4 },
+        trackPerf: { "良": 85, "稍重": 78, "重": 70, "不良": 58 },
+        surfPerf: { "芝": 88, "ダート": 40 },
+        distPerf: { sprint: 60, mile: 78, middle: 86, long: 80 },
+        jockeyWinRate: 0.12,
+        recentRaces: [
+          { pos: 1, total: 10, name: "新馬" },
+          { pos: 5, total: 12, name: "1勝クラス" },
+          { pos: 1, total: 14, name: "京成杯" },
+          { pos: 7, total: 18, name: "皐月賞" }
+        ]
+      },
+      {
+        number: 17, name: "ロブチェン", age: 3, sex: "牡",
+        weight: 480, jockey: "松山弘平", trainer: "杉山晴紀", odds: 3.2,
+        stats: { wins: 3, second: 0, third: 1, total: 4 },
+        trackPerf: { "良": 96, "稍重": 84, "重": 74, "不良": 60 },
+        surfPerf: { "芝": 97, "ダート": 32 },
+        distPerf: { sprint: 50, mile: 78, middle: 95, long: 90 },
+        jockeyWinRate: 0.12,
+        recentRaces: [
+          { pos: 1, total: 10, name: "新馬" },
+          { pos: 1, total: 15, name: "ホープフルS" },
+          { pos: 3, total: 12, name: "共同通信杯" },
+          { pos: 1, total: 18, name: "皐月賞" }
+        ]
+      },
+      {
+        number: 18, name: "エムズビギン", age: 3, sex: "牡",
+        weight: 476, jockey: "F.ゴンサルベス", trainer: "笹田和秀", odds: 37.9,
+        stats: { wins: 1, second: 1, third: 1, total: 6 },
+        trackPerf: { "良": 72, "稍重": 70, "重": 66, "不良": 60 },
+        surfPerf: { "芝": 76, "ダート": 50 },
+        distPerf: { sprint: 58, mile: 72, middle: 76, long: 73 },
+        jockeyWinRate: 0.07,
+        recentRaces: [
+          { pos: 5, total: 12, name: "新馬" },
+          { pos: 1, total: 10, name: "未勝利" },
+          { pos: 3, total: 12, name: "1勝クラス" },
+          { pos: 4, total: 14, name: "1勝クラス" },
+          { pos: 2, total: 14, name: "きさらぎ賞" },
+          { pos: 6, total: 14, name: "1勝クラス" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "race002",
+    name: "宝塚記念",
+    venue: "阪神競馬場",
+    grade: "G1",
+    raceNo: "11R",
+    date: "2026-06-28",
+    distance: 2200,
+    surface: "芝",
+    trackCondition: "稍重",
+    weather: "曇",
+    desc: "上半期グランプリ。内回り2200mで機動力と底力が試される。稍重で時計が掛かる傾向。",
+    horses: [
+      {
+        number: 1, name: "クロノスキング", age: 5, sex: "牡",
+        weight: 502, jockey: "武豊", trainer: "池江泰寿", odds: 3.2,
+        stats: { wins: 8, second: 3, third: 1, total: 15 },
+        trackPerf: { "良": 85, "稍重": 88, "重": 85, "不良": 80 },
+        surfPerf: { "芝": 90, "ダート": 55 },
+        distPerf: { sprint: 60, mile: 75, middle: 92, long: 88 },
+        jockeyWinRate: 0.18,
+        recentRaces: [
+          { pos: 1, total: 16, name: "天皇賞(春)" },
+          { pos: 2, total: 14, name: "大阪杯" },
+          { pos: 1, total: 12, name: "有馬記念" },
+          { pos: 1, total: 14, name: "天皇賞(秋)" },
+          { pos: 2, total: 16, name: "宝塚記念" }
+        ]
+      },
+      {
+        number: 2, name: "オーシャンドリーム", age: 4, sex: "牡",
+        weight: 486, jockey: "ルメール", trainer: "堀宣行", odds: 4.5,
+        stats: { wins: 6, second: 2, third: 2, total: 12 },
+        trackPerf: { "良": 88, "稍重": 82, "重": 70, "不良": 58 },
+        surfPerf: { "芝": 92, "ダート": 40 },
+        distPerf: { sprint: 55, mile: 82, middle: 90, long: 85 },
+        jockeyWinRate: 0.23,
+        recentRaces: [
+          { pos: 2, total: 14, name: "天皇賞(春)" },
+          { pos: 1, total: 12, name: "大阪杯" },
+          { pos: 3, total: 14, name: "有馬記念" },
+          { pos: 1, total: 12, name: "天皇賞(秋)" },
+          { pos: 1, total: 14, name: "ジャパンC" }
+        ]
+      },
+      {
+        number: 3, name: "スターリングロード", age: 5, sex: "牝",
+        weight: 462, jockey: "川田将雅", trainer: "友道康夫", odds: 5.0,
+        stats: { wins: 7, second: 4, third: 1, total: 14 },
+        trackPerf: { "良": 90, "稍重": 85, "重": 78, "不良": 65 },
+        surfPerf: { "芝": 95, "ダート": 30 },
+        distPerf: { sprint: 65, mile: 90, middle: 92, long: 82 },
+        jockeyWinRate: 0.20,
+        recentRaces: [
+          { pos: 1, total: 14, name: "ヴィクトリアマイル" },
+          { pos: 1, total: 12, name: "大阪杯" },
+          { pos: 2, total: 14, name: "エリザベス女王杯" },
+          { pos: 1, total: 12, name: "秋華賞" },
+          { pos: 1, total: 14, name: "ローズS" }
+        ]
+      },
+      {
+        number: 4, name: "フォルテッシモ", age: 4, sex: "牡",
+        weight: 494, jockey: "戸崎圭太", trainer: "角居勝彦", odds: 8.0,
+        stats: { wins: 4, second: 3, third: 3, total: 11 },
+        trackPerf: { "良": 76, "稍重": 82, "重": 86, "不良": 80 },
+        surfPerf: { "芝": 82, "ダート": 68 },
+        distPerf: { sprint: 70, mile: 78, middle: 85, long: 82 },
+        jockeyWinRate: 0.15,
+        recentRaces: [
+          { pos: 3, total: 14, name: "天皇賞(春)" },
+          { pos: 4, total: 12, name: "大阪杯" },
+          { pos: 2, total: 14, name: "有馬記念" },
+          { pos: 1, total: 12, name: "金鯱賞" },
+          { pos: 2, total: 14, name: "中日新聞杯" }
+        ]
+      },
+      {
+        number: 5, name: "ミラクルストーム", age: 6, sex: "牡",
+        weight: 510, jockey: "松山弘平", trainer: "高橋義忠", odds: 15.0,
+        stats: { wins: 5, second: 6, third: 2, total: 18 },
+        trackPerf: { "良": 72, "稍重": 80, "重": 84, "不良": 82 },
+        surfPerf: { "芝": 78, "ダート": 75 },
+        distPerf: { sprint: 75, mile: 80, middle: 82, long: 80 },
+        jockeyWinRate: 0.13,
+        recentRaces: [
+          { pos: 4, total: 14, name: "天皇賞(春)" },
+          { pos: 2, total: 12, name: "阪神大賞典" },
+          { pos: 3, total: 14, name: "有馬記念" },
+          { pos: 5, total: 12, name: "天皇賞(秋)" },
+          { pos: 2, total: 14, name: "宝塚記念" }
+        ]
+      },
+      {
+        number: 6, name: "ライジングサン", age: 4, sex: "牡",
+        weight: 478, jockey: "横山武史", trainer: "国枝栄", odds: 7.0,
+        stats: { wins: 5, second: 2, third: 1, total: 10 },
+        trackPerf: { "良": 86, "稍重": 80, "重": 72, "不良": 60 },
+        surfPerf: { "芝": 90, "ダート": 45 },
+        distPerf: { sprint: 58, mile: 82, middle: 88, long: 84 },
+        jockeyWinRate: 0.14,
+        recentRaces: [
+          { pos: 5, total: 14, name: "天皇賞(春)" },
+          { pos: 1, total: 12, name: "大阪杯" },
+          { pos: 4, total: 14, name: "有馬記念" },
+          { pos: 1, total: 12, name: "天皇賞(秋)" },
+          { pos: 2, total: 14, name: "毎日王冠" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "race003",
+    name: "安田記念",
+    venue: "東京競馬場",
+    grade: "G1",
+    raceNo: "11R",
+    date: "2026-06-07",
+    distance: 1600,
+    surface: "芝",
+    trackCondition: "良",
+    weather: "晴",
+    desc: "春のマイル王決定戦。東京1600m良馬場で先行力とスピードが重要。",
+    horses: [
+      {
+        number: 1, name: "ベルカント", age: 5, sex: "牝",
+        weight: 454, jockey: "ルメール", trainer: "堀宣行", odds: 2.5,
+        stats: { wins: 9, second: 2, third: 1, total: 14 },
+        trackPerf: { "良": 96, "稍重": 80, "重": 65, "不良": 52 },
+        surfPerf: { "芝": 98, "ダート": 20 },
+        distPerf: { sprint: 85, mile: 98, middle: 75, long: 50 },
+        jockeyWinRate: 0.23,
+        recentRaces: [
+          { pos: 1, total: 16, name: "ヴィクトリアマイル" },
+          { pos: 1, total: 14, name: "マイルCS" },
+          { pos: 1, total: 12, name: "阪神カップ" },
+          { pos: 2, total: 14, name: "安田記念" },
+          { pos: 1, total: 12, name: "富士S" }
+        ]
+      },
+      {
+        number: 2, name: "スプリントキング", age: 6, sex: "牡",
+        weight: 488, jockey: "川田将雅", trainer: "藤岡健一", odds: 3.5,
+        stats: { wins: 7, second: 4, third: 2, total: 16 },
+        trackPerf: { "良": 90, "稍重": 85, "重": 80, "不良": 72 },
+        surfPerf: { "芝": 92, "ダート": 60 },
+        distPerf: { sprint: 90, mile: 92, middle: 68, long: 45 },
+        jockeyWinRate: 0.20,
+        recentRaces: [
+          { pos: 2, total: 16, name: "ヴィクトリアマイル" },
+          { pos: 1, total: 14, name: "マイルCS" },
+          { pos: 1, total: 12, name: "スプリンターズS" },
+          { pos: 1, total: 14, name: "高松宮記念" },
+          { pos: 2, total: 12, name: "阪急杯" }
+        ]
+      },
+      {
+        number: 3, name: "ファントムウィンド", age: 4, sex: "牡",
+        weight: 480, jockey: "武豊", trainer: "角居勝彦", odds: 5.5,
+        stats: { wins: 5, second: 2, third: 2, total: 10 },
+        trackPerf: { "良": 88, "稍重": 78, "重": 65, "不良": 52 },
+        surfPerf: { "芝": 90, "ダート": 50 },
+        distPerf: { sprint: 82, mile: 90, middle: 76, long: 55 },
+        jockeyWinRate: 0.18,
+        recentRaces: [
+          { pos: 3, total: 16, name: "ヴィクトリアマイル" },
+          { pos: 1, total: 14, name: "NHKマイルC" },
+          { pos: 2, total: 12, name: "マイラーズC" },
+          { pos: 1, total: 14, name: "アーリントンC" },
+          { pos: 2, total: 12, name: "ニュージーランドT" }
+        ]
+      },
+      {
+        number: 4, name: "シャイニングスター", age: 5, sex: "牡",
+        weight: 476, jockey: "岩田望来", trainer: "手塚貴久", odds: 8.0,
+        stats: { wins: 4, second: 5, third: 2, total: 14 },
+        trackPerf: { "良": 82, "稍重": 82, "重": 80, "不良": 74 },
+        surfPerf: { "芝": 85, "ダート": 62 },
+        distPerf: { sprint: 80, mile: 85, middle: 78, long: 60 },
+        jockeyWinRate: 0.13,
+        recentRaces: [
+          { pos: 4, total: 16, name: "ヴィクトリアマイル" },
+          { pos: 2, total: 14, name: "マイルCS" },
+          { pos: 3, total: 12, name: "阪神カップ" },
+          { pos: 2, total: 14, name: "毎日王冠" },
+          { pos: 2, total: 12, name: "富士S" }
+        ]
+      },
+      {
+        number: 5, name: "エアスピリット", age: 4, sex: "牡",
+        weight: 470, jockey: "戸崎圭太", trainer: "池添兼雄", odds: 12.0,
+        stats: { wins: 3, second: 3, third: 3, total: 11 },
+        trackPerf: { "良": 80, "稍重": 76, "重": 72, "不良": 64 },
+        surfPerf: { "芝": 83, "ダート": 58 },
+        distPerf: { sprint: 78, mile: 82, middle: 75, long: 58 },
+        jockeyWinRate: 0.15,
+        recentRaces: [
+          { pos: 5, total: 16, name: "ヴィクトリアマイル" },
+          { pos: 3, total: 14, name: "マイルCS" },
+          { pos: 2, total: 12, name: "府中牝馬S" },
+          { pos: 3, total: 14, name: "毎日王冠" },
+          { pos: 1, total: 12, name: "関屋記念" }
+        ]
+      },
+      {
+        number: 6, name: "ダークネスフォール", age: 5, sex: "牡",
+        weight: 492, jockey: "横山武史", trainer: "矢作芳人", odds: 18.0,
+        stats: { wins: 4, second: 3, third: 3, total: 13 },
+        trackPerf: { "良": 75, "稍重": 78, "重": 80, "不良": 76 },
+        surfPerf: { "芝": 80, "ダート": 72 },
+        distPerf: { sprint: 76, mile: 80, middle: 80, long: 72 },
+        jockeyWinRate: 0.14,
+        recentRaces: [
+          { pos: 6, total: 16, name: "ヴィクトリアマイル" },
+          { pos: 4, total: 14, name: "マイルCS" },
+          { pos: 1, total: 12, name: "エプソムC" },
+          { pos: 2, total: 14, name: "関屋記念" },
+          { pos: 3, total: 12, name: "スワンS" }
+        ]
+      }
+    ]
+  }
+];
+
+// ============================================================
+// 予測エンジン
+// ============================================================
+
+function getDistanceCategory(dist) {
+  if (dist < 1400) return "sprint";
+  if (dist < 1800) return "mile";
+  if (dist < 2200) return "middle";
+  return "long";
+}
+
+function calcRecentFormScore(recentRaces) {
+  if (!recentRaces || recentRaces.length === 0) return 50;
+  const weights = [1, 1.5, 2, 2.5, 3];
+  const races = recentRaces.slice(-5);
+  const w = weights.slice(-races.length);
+  let totalW = 0, score = 0;
+  races.forEach((r, i) => {
+    const posScore = r.total > 1 ? (r.total - r.pos) / (r.total - 1) : 1;
+    score += posScore * w[i];
+    totalW += w[i];
+  });
+  return (score / totalW) * 100;
+}
+
+function calcHorseFactors(horse, race, condition) {
+  const cond = condition || race.trackCondition;
+  const distCat = getDistanceCategory(race.distance);
+
+  const winRate = horse.stats.wins / Math.max(horse.stats.total, 1);
+  const top3Rate = (horse.stats.wins + horse.stats.second + horse.stats.third) / Math.max(horse.stats.total, 1);
+
+  const factors = {
+    winRate:   { label: "勝率",       value: winRate * 100,                      weight: 0.20 },
+    top3Rate:  { label: "複勝率",     value: top3Rate * 100,                     weight: 0.10 },
+    trackCond: { label: "馬場適性",   value: horse.trackPerf[cond] || 65,       weight: 0.20 },
+    distance:  { label: "距離適性",   value: horse.distPerf[distCat] || 65,     weight: 0.20 },
+    recentForm:{ label: "最近の調子", value: calcRecentFormScore(horse.recentRaces), weight: 0.20 },
+    jockey:    { label: "騎手力",     value: Math.min(horse.jockeyWinRate * 400, 100), weight: 0.10 }
+  };
+
+  let totalScore = 0;
+  Object.values(factors).forEach(f => { totalScore += f.value * f.weight; });
+
+  return { factors, totalScore };
+}
+
+function predictRace(race, condition) {
+  const results = race.horses.map(h => {
+    const { factors, totalScore } = calcHorseFactors(h, race, condition);
+    return { horse: h, factors, score: totalScore };
+  });
+
+  // Softmax normalization
+  const maxScore = Math.max(...results.map(r => r.score));
+  const expScores = results.map(r => Math.exp((r.score - maxScore) / 10));
+  const sumExp = expScores.reduce((a, b) => a + b, 0);
+
+  return results.map((r, i) => {
+    const winProb = expScores[i] / sumExp;
+    const placeProb = Math.min(winProb * 2.8, 0.95);
+
+    // Market odds from data; fall back to model-derived estimate
+    const marketOdds = r.horse.odds || Math.max((1 / winProb) * 0.80, 1.1);
+    // Estimated place odds (roughly 35-40% of win odds)
+    const placeOdds = Math.max(marketOdds * 0.36, 1.1);
+    // Display odds: show market odds
+    const winOdds = marketOdds;
+
+    // EV relative to market: positive means our model rates higher than market implies
+    const marketImplied = 1 / marketOdds;
+    const edgeVsMarket = winProb - marketImplied;
+
+    return {
+      ...r,
+      winProb,
+      placeProb,
+      winOdds,
+      placeOdds,
+      marketOdds,
+      edgeVsMarket,
+    };
+  }).sort((a, b) => b.winProb - a.winProb);
+}
+
+// Kelly Criterion
+function kellyFraction(prob, odds) {
+  const b = odds - 1;
+  const q = 1 - prob;
+  return Math.max(0, (b * prob - q) / b);
+}
+
+// 各馬の予想根拠を自動生成
+function generatePredictionBasis(pred, race) {
+  const h = pred.horse;
+  const f = pred.factors;
+  const points = [], warnings = [];
+
+  const recent = (h.recentRaces || []).slice().reverse();
+  if (recent.length > 0) {
+    const last = recent[0];
+    if (last.pos === 1)          points.push(`前走「${last.name}」優勝`);
+    else if (last.pos === 2)     points.push(`前走「${last.name}」2着`);
+    else if (last.pos === 3)     points.push(`前走「${last.name}」3着`);
+    else if (last.pos <= Math.ceil(last.total * 0.3)) warnings.push(`前走「${last.name}」${last.pos}着`);
+    else warnings.push(`前走「${last.name}」${last.pos}着と低調`);
+  }
+  // 連勝
+  const streak = recent.findIndex(r => r.pos !== 1);
+  if (streak >= 3) points.push(`${streak}連勝中`);
+  else if (streak === 2) points.push('2連勝中');
+
+  const wr = h.stats.wins / Math.max(h.stats.total, 1);
+  if (wr >= 0.55)      points.push(`高勝率 ${(wr*100).toFixed(0)}%（${h.stats.wins}勝/${h.stats.total}戦）`);
+  else if (wr >= 0.35) points.push(`勝率 ${(wr*100).toFixed(0)}%（${h.stats.wins}/${h.stats.total}戦）`);
+  else if (wr < 0.20)  warnings.push(`勝率 ${(wr*100).toFixed(0)}%（${h.stats.wins}/${h.stats.total}戦）と低め`);
+
+  if (f.distance.value >= 88)      points.push('距離適性◎');
+  else if (f.distance.value >= 76) points.push('距離適性○');
+  else if (f.distance.value < 65)  warnings.push('距離適性に不安');
+
+  const cond = race.trackCondition;
+  if (f.trackCond.value >= 88)      points.push(`${cond}馬場◎`);
+  else if (f.trackCond.value >= 76) points.push(`${cond}馬場○`);
+  else if (f.trackCond.value < 65)  warnings.push(`${cond}馬場は苦手`);
+
+  if (h.jockeyWinRate >= 0.20)      points.push(`${h.jockey}（勝率${(h.jockeyWinRate*100).toFixed(0)}%・上位騎手）`);
+  else if (h.jockeyWinRate >= 0.15) points.push(`${h.jockey}（勝率${(h.jockeyWinRate*100).toFixed(0)}%）`);
+  else                               points.push(h.jockey + '騎手');
+
+  if (pred.edgeVsMarket > 0.08)      points.push(`市場比 +${(pred.edgeVsMarket*100).toFixed(0)}pt の妙味（バリュー）`);
+  else if (pred.edgeVsMarket > 0.02) points.push('やや妙味あり');
+  else if (pred.edgeVsMarket < -0.08) warnings.push(`市場人気(${h.odds}倍)がモデル評価を大きく上回る`);
+
+  return { points, warnings };
+}
+
+// 予算をウェイト比率で各買い目に配分 (最低100円単位)
+function allocate(weights, total) {
+  const sum = weights.reduce((a, b) => a + b, 0);
+  if (sum <= 0) return weights.map(() => Math.max(Math.round(total / weights.length / 100) * 100, 100));
+  return weights.map(w => Math.max(Math.round((w / sum) * total / 100) * 100, 100));
+}
+
+function optimizeBetting(predictions, budget, targetReturn, race) {
+  const strategies = [];
+  const top4 = predictions.slice(0, Math.min(4, predictions.length));
+  const top3 = top4.slice(0, 3);
+  const top = top3[0], second = top3[1], third = top3[2] || top3[1];
+
+  // ═══ 1. 単勝 分散 (上位3頭) ═══
+  const winKFs = top3.map(p => Math.max(kellyFraction(p.winProb, p.marketOdds), p.winProb * 0.15));
+  const winAmts = allocate(winKFs, budget);
+  const winTotal = winAmts.reduce((s,a)=>s+a, 0);
+  const winExpRet = top3.reduce((s,p,i) => s + winAmts[i]*p.marketOdds*p.winProb, 0);
+  strategies.push({
+    type: '単勝 分散',
+    icon: '🥇',
+    desc: `本命・対抗・3番手に分散`,
+    bets: top3.map((p,i) => ({ label:`${p.horse.number}番 ${p.horse.name}（市場${p.horse.odds}倍${p.edgeVsMarket>0.03?' ✦':''}）`, amount:winAmts[i] })),
+    winProb: top3.reduce((s,p)=>s+p.winProb, 0),
+    hitReturn: winAmts[0] * top.marketOdds,
+    expectedReturn: winExpRet,
+    totalBet: winTotal,
+    basis: `本命${top.horse.name}・対抗${second.horse.name}・3番手${third.horse.name}の3頭に分散。`
+         + (top.edgeVsMarket > 0.03 ? `${top.horse.name}は市場比+${(top.edgeVsMarket*100).toFixed(0)}ptの妙味あり。` : '')
+         + `いずれか的中で回収。`,
+  });
+
+  // ═══ 2. 複勝 分散 (上位3頭) ═══
+  const placeAmts = allocate(top3.map(p=>p.placeProb), budget);
+  const placeTotal = placeAmts.reduce((s,a)=>s+a, 0);
+  const placeExpRet = top3.reduce((s,p,i) => s + placeAmts[i]*p.placeOdds*p.placeProb, 0);
+  strategies.push({
+    type: '複勝 分散',
+    icon: '🏅',
+    desc: `上位3頭の複勝に分散`,
+    bets: top3.map((p,i) => ({ label:`${p.horse.number}番 ${p.horse.name}（推定${p.placeOdds.toFixed(1)}倍）`, amount:placeAmts[i] })),
+    winProb: Math.min(top3.reduce((s,p)=>s+p.placeProb,0) * 0.5, 0.90),
+    hitReturn: placeAmts[0] * top.placeOdds,
+    expectedReturn: placeExpRet,
+    totalBet: placeTotal,
+    basis: `1着でなく3着以内ならOK。的中率を高く保ちながら着実な回収を狙う安全型戦略。`,
+  });
+
+  // ═══ 3. 馬連 BOX (top3 → 3通り) ═══
+  const quinPairs = [[top3[0],top3[1]],[top3[0],top3[2]],[top3[1],top3[2]]];
+  const quinUnit = Math.max(Math.round(budget / 3 / 100) * 100, 100);
+  const quinPairProbs = quinPairs.map(([a,b]) => {
+    const d = 1 - a.winProb - b.winProb + a.winProb*b.winProb;
+    return d > 0 ? 2*a.winProb*b.winProb/d : 0;
+  });
+  const quinTotalProb = quinPairProbs.reduce((s,p)=>s+Math.min(p,0.25), 0);
+  const quinOdds = Math.max((1/Math.min(quinTotalProb/3+0.001, 0.5))*0.75, 3);
+  strategies.push({
+    type: '馬連 BOX',
+    icon: '🔗',
+    desc: `${top3.map(p=>p.horse.number+'番').join('-')} 3頭BOX（3通り）`,
+    bets: quinPairs.map(([a,b]) => ({ label:`${a.horse.number}番 ${a.horse.name} ─ ${b.horse.number}番 ${b.horse.name}`, amount:quinUnit })),
+    winProb: Math.min(quinTotalProb, 0.55),
+    hitReturn: quinUnit * quinOdds,
+    expectedReturn: quinPairs.reduce((s,p,i) => s + quinUnit*quinOdds*(quinPairProbs[i]||0), 0),
+    totalBet: quinUnit * 3,
+    basis: `上位3頭のうち2頭が1・2着に入れば順不同で的中。BOX買いで取りこぼしなし。単勝より高配当を狙える。`,
+  });
+
+  // ═══ 4. 馬単 1着固定 流し ═══
+  const exactaRest = top4.slice(1);
+  const exactaUnit = Math.max(Math.round(budget / exactaRest.length / 100) * 100, 100);
+  const exactaProbs = exactaRest.map(p => {
+    const d = 1 - top.winProb; return d > 0 ? top.winProb*p.winProb/d : 0;
+  });
+  const exactaTotalProb = exactaProbs.reduce((s,p)=>s+Math.min(p,0.2), 0);
+  const exactaOdds = Math.max((1/Math.min(exactaTotalProb/exactaRest.length+0.001, 0.3))*0.73, 3.5);
+  strategies.push({
+    type: '馬単 1着固定',
+    icon: '🎯',
+    desc: `${top.horse.name} 1着→${exactaRest.map(p=>p.horse.number+'番').join('/')} 流し（${exactaRest.length}通り）`,
+    bets: exactaRest.map((p,i) => ({ label:`${top.horse.number}番 ${top.horse.name} → ${p.horse.number}番 ${p.horse.name}`, amount:exactaUnit })),
+    winProb: Math.min(exactaTotalProb, 0.35),
+    hitReturn: exactaUnit * exactaOdds,
+    expectedReturn: exactaRest.reduce((s,p,i) => s + exactaUnit*exactaOdds*(exactaProbs[i]||0), 0),
+    totalBet: exactaUnit * exactaRest.length,
+    basis: `総合スコア最上位の${top.horse.name}を1着固定。2着候補${exactaRest.map(p=>p.horse.name).join('・')}を流す。馬連より高配当。`,
+  });
+
+  // ═══ 5. 三連複 BOX ═══
+  const trioCombos = [];
+  for (let i=0;i<top4.length;i++) for (let j=i+1;j<top4.length;j++) for (let k=j+1;k<top4.length;k++) {
+    trioCombos.push([top4[i],top4[j],top4[k]]);
+  }
+  const trioUnit = Math.max(Math.round(budget / trioCombos.length / 100) * 100, 100);
+  const trioMainProb = top3.reduce((s,p)=>s*p.winProb,1) * 6;
+  const trioTotalProb = Math.min(trioMainProb * (top4.length > 3 ? 1.6 : 1), 0.45);
+  const trioOdds = Math.max((1/Math.min(trioMainProb,0.3))*0.70, 6);
+  strategies.push({
+    type: '三連複 BOX',
+    icon: '🎲',
+    desc: `上位${top4.length}頭BOX（${trioCombos.length}通り）`,
+    bets: trioCombos.map(([a,b,c]) => ({ label:`${a.horse.number}-${b.horse.number}-${c.horse.number}番`, amount:trioUnit })),
+    winProb: trioTotalProb,
+    hitReturn: trioUnit * trioOdds,
+    expectedReturn: trioCombos.length * trioUnit * trioOdds * trioTotalProb / trioCombos.length,
+    totalBet: trioUnit * trioCombos.length,
+    basis: `上位${top4.length}頭のうち3頭が1〜3着に入れば的中。${trioCombos.length}通りカバーで取りこぼしを抑えつつ高配当を狙う。`,
+  });
+
+  // ═══ 6. 三連単 軸2頭流し ═══
+  const trifA = top4[0], trifB = top4[1];
+  const trifCands = top4.slice(2).length > 0 ? top4.slice(2) : [top4[1]];
+  const trifBets = [];
+  trifCands.forEach(c => trifBets.push({ label:`${trifA.horse.number}→${trifB.horse.number}→${c.horse.number}番`, h:[trifA,trifB,c] }));
+  trifCands.forEach(c => trifBets.push({ label:`${trifB.horse.number}→${trifA.horse.number}→${c.horse.number}番`, h:[trifB,trifA,c] }));
+  const trifUnit = Math.max(Math.round(budget / trifBets.length / 100) * 100, 100);
+  const trifProb = Math.min(trifBets.reduce((s,b)=>s+b.h[0].winProb*b.h[1].winProb*b.h[2].winProb,0)*2, 0.18);
+  const trifOdds = Math.max((1/Math.max(trifProb,0.005))*0.65, 20);
+  strategies.push({
+    type: '三連単 軸2頭流し',
+    icon: '💥',
+    desc: `${trifA.horse.name}・${trifB.horse.name}軸→流し（${trifBets.length}通り）`,
+    bets: trifBets.map(b => ({ label:b.label, amount:trifUnit })),
+    winProb: trifProb,
+    hitReturn: trifUnit * trifOdds,
+    expectedReturn: trifBets.length * trifUnit * trifOdds * trifProb / trifBets.length,
+    totalBet: trifUnit * trifBets.length,
+    basis: `1・2着を${trifA.horse.name}・${trifB.horse.name}に絞り込み、3着候補を流す。的中確率は低いが高配当が期待できるギャンブル型。`,
+  });
+
+  // ═══ 7. ケリー基準 バリュー分散 ═══
+  const positiveEV = predictions.filter(p => p.edgeVsMarket > 0);
+  const kellCands = positiveEV.length >= 2 ? positiveEV : top3;
+  const kellKFs = kellCands.map(p => Math.max(kellyFraction(p.winProb, p.marketOdds), 0.01));
+  const kellAmts = allocate(kellKFs, budget);
+  const kellTotal = kellAmts.reduce((s,a)=>s+a, 0);
+  const kellWinProb = Math.min(kellCands.reduce((s,p)=>s+p.winProb,0), 0.85);
+  const kellExpRet = kellCands.reduce((s,p,i)=>s+kellAmts[i]*p.marketOdds*p.winProb, 0);
+  const isKelly = positiveEV.length >= 2;
+  const totalKF = kellKFs.reduce((a,b)=>a+b,0);
+  strategies.push({
+    type: isKelly ? 'ケリー基準 バリュー投資' : '確率比例 分散投資',
+    icon: '📐',
+    desc: isKelly ? `バリュー${kellCands.length}頭への最適配分` : `上位3頭への確率比例配分`,
+    bets: kellCands.map((p,i) => ({
+      label: `${p.horse.number}番 ${p.horse.name}（市場${p.horse.odds}倍${p.edgeVsMarket>0?' ✦':''}）` +
+             (isKelly ? `  Kelly${((kellKFs[i]/totalKF)*100).toFixed(0)}%` : ''),
+      amount: kellAmts[i]
+    })),
+    winProb: kellWinProb,
+    hitReturn: kellAmts[0] * kellCands[0].marketOdds,
+    expectedReturn: kellExpRet,
+    totalBet: kellTotal,
+    basis: isKelly
+      ? `本モデルが市場より高く評価する馬（✦）${positiveEV.map(p=>p.horse.name).join('・')}にケリー基準で最適配分。期待値最大化戦略。`
+      : `上位3頭の予想勝率に比例して配分。リスク分散型の安定戦略。`,
+  });
+
+  // EV計算・目標達成判定
+  strategies.forEach(s => {
+    s.ev = s.totalBet > 0 ? (s.expectedReturn - s.totalBet) / s.totalBet : 0;
+    s.achievesTarget = s.hitReturn >= targetReturn;
+    s.targetRatio = s.hitReturn / targetReturn;
+  });
+
+  // ベスト推奨
+  const achievers = strategies.filter(s => s.achievesTarget);
+  const best = achievers.length > 0
+    ? achievers.reduce((a, b) => a.winProb > b.winProb ? a : b)
+    : strategies.reduce((a, b) => a.ev > b.ev ? a : b);
+  best.isBest = true;
+
+  return strategies;
+}
+
+// ============================================================
+// UI ヘルパー
+// ============================================================
+
+const COLORS = [
+  '#f1c40f','#e74c3c','#3498db','#27ae60','#9b59b6',
+  '#e67e22','#1abc9c','#95a5a6','#d35400','#7f8c8d',
+  '#2c3e50','#c0392b'
+];
+
+function fmtPct(v) { return (v * 100).toFixed(1) + '%'; }
+function fmtOdds(v) { return v.toFixed(1) + '倍'; }
+function fmtYen(v) { return Math.round(v).toLocaleString() + '円'; }
+
+function recentDotsHtml(recentRaces) {
+  return (recentRaces || []).map(r => {
+    let color = '#7f8c8d';
+    let title = `${r.name}: ${r.pos}/${r.total}着`;
+    if (r.pos === 1) color = '#f1c40f';
+    else if (r.pos === 2) color = '#95a5a6';
+    else if (r.pos === 3) color = '#cd7f32';
+    else if (r.pos <= Math.ceil(r.total * 0.4)) color = '#3498db';
+    else color = '#e74c3c';
+    return `<div class="trend-dot" style="background:${color}" title="${title}"></div>`;
+  }).join('');
+}
+
+function probBarHtml(prob, color) {
+  return `<div class="prob-bar-wrap">
+    <div class="prob-bar" style="width:${(prob*100).toFixed(1)}%;background:${color}"></div>
+  </div>`;
+}
+
+function scoreBarHtml(value, color) {
+  return `<div class="factor-bar-bg">
+    <div class="factor-bar" style="width:${value.toFixed(0)}%;background:${color}"></div>
+  </div>`;
+}
+
+// ============================================================
+// DOM 操作
+// ============================================================
+
+let currentRace = null;
+let currentPredictions = null;
+
+function initRaceSelect() {
+  const sel = document.getElementById('race-select');
+  RACES.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r.id;
+    opt.textContent = `${r.venue} ${r.raceNo} ${r.name} (${r.date})`;
+    sel.appendChild(opt);
+  });
+}
+
+function showRaceMeta(race) {
+  const el = document.getElementById('race-meta');
+  const condMap = { '良': '🟢 良', '稍重': '🟡 稍重', '重': '🟠 重', '不良': '🔴 不良' };
+  el.innerHTML = `
+    <span class="badge badge-g1">${race.grade}</span>
+    <span class="badge badge-surf">${race.surface} ${race.distance}m</span>
+    <span class="badge badge-dist">${race.venue}</span>
+    <span class="badge badge-cond">${condMap[race.trackCondition]} ${race.weather}</span>
+  `;
+  el.style.display = 'flex';
+
+  const desc = document.getElementById('race-desc');
+  desc.textContent = race.desc;
+  desc.style.display = 'block';
+}
+
+function renderHorseTable(predictions) {
+  const tbody = document.getElementById('horse-tbody');
+  tbody.innerHTML = '';
+
+  predictions.forEach((pred, rank) => {
+    const h = pred.horse;
+    const color = COLORS[(h.number - 1) % COLORS.length];
+    const rankClass = rank === 0 ? 'rank-1' : rank === 1 ? 'rank-2' : rank === 2 ? 'rank-3' : '';
+
+    const basis = generatePredictionBasis(pred, currentRace);
+    const briefReason = basis.points.slice(0, 2).join(' / ');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <span class="num-badge hc-${h.number}">${h.number}</span>
+      </td>
+      <td>
+        <div class="horse-name ${rankClass}">${rank < 3 ? ['🥇','🥈','🥉'][rank]+' ' : ''}${h.name}</div>
+        <div class="horse-detail">${h.age}歳${h.sex} ${h.weight}kg / ${h.trainer}厩舎</div>
+        ${briefReason ? `<div class="horse-detail" style="margin-top:3px;color:#5dade2">▶ ${briefReason}</div>` : ''}
+      </td>
+      <td><div style="font-weight:bold">${h.jockey}</div></td>
+      <td>
+        <div style="font-size:0.9rem">${h.stats.wins}-${h.stats.second}-${h.stats.third}</div>
+        <div class="horse-detail">${h.stats.total}戦</div>
+      </td>
+      <td>
+        <div class="trend">${recentDotsHtml(h.recentRaces)}</div>
+        <div class="horse-detail" style="margin-top:3px">${(h.recentRaces||[]).slice(-5).map(r=>r.pos+'着').join(' ')}</div>
+      </td>
+      <td>
+        ${probBarHtml(pred.winProb, color)}
+        <div class="prob-label" style="color:${color}">${fmtPct(pred.winProb)}</div>
+      </td>
+      <td>
+        ${probBarHtml(pred.placeProb, '#8e44ad')}
+        <div class="prob-label" style="color:#8e44ad">${fmtPct(pred.placeProb)}</div>
+      </td>
+      <td>
+        <div style="font-weight:bold;color:var(--gold2)">${fmtOdds(pred.marketOdds)}</div>
+        <div class="horse-detail" style="margin-top:3px;color:${pred.edgeVsMarket > 0 ? '#27ae60' : '#e74c3c'}">
+          ${pred.edgeVsMarket > 0 ? '✦バリュー +' + (pred.edgeVsMarket*100).toFixed(1) + '%' : '▼ ' + (pred.edgeVsMarket*100).toFixed(1) + '%'}
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderProbChart(predictions) {
+  const container = document.getElementById('prob-chart');
+  const top6 = predictions.slice(0, 6);
+  const total = top6.reduce((s, p) => s + p.winProb, 0);
+  const others = 1 - total;
+
+  const items = [
+    ...top6.map((p, i) => ({
+      label: `${p.horse.number}番 ${p.horse.name}`,
+      prob: p.winProb,
+      color: COLORS[(p.horse.number - 1) % COLORS.length]
+    })),
+    ...(others > 0.01 ? [{ label: 'その他', prob: others, color: '#555' }] : [])
+  ];
+
+  // Simple SVG donut chart
+  const size = 160;
+  const cx = size / 2, cy = size / 2, r = 62, inner = 38;
+  let startAngle = -Math.PI / 2;
+  let paths = '';
+
+  items.forEach(item => {
+    const angle = item.prob * 2 * Math.PI;
+    const endAngle = startAngle + angle;
+    const x1 = cx + r * Math.cos(startAngle);
+    const y1 = cy + r * Math.sin(startAngle);
+    const x2 = cx + r * Math.cos(endAngle);
+    const y2 = cy + r * Math.sin(endAngle);
+    const ix1 = cx + inner * Math.cos(startAngle);
+    const iy1 = cy + inner * Math.sin(startAngle);
+    const ix2 = cx + inner * Math.cos(endAngle);
+    const iy2 = cy + inner * Math.sin(endAngle);
+    const large = angle > Math.PI ? 1 : 0;
+    paths += `<path d="M${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} L${ix2},${iy2} A${inner},${inner} 0 ${large},0 ${ix1},${iy1} Z" fill="${item.color}" opacity="0.9"/>`;
+    startAngle = endAngle;
+  });
+
+  const legend = items.map(item => `
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${item.color}"></div>
+      <div style="flex:1">${item.label}</div>
+      <div class="legend-pct" style="color:${item.color}">${(item.prob*100).toFixed(1)}%</div>
+    </div>
+  `).join('');
+
+  container.innerHTML = `
+    <div class="donut-chart">
+      <svg class="donut-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+        ${paths}
+        <text x="${cx}" y="${cy-6}" text-anchor="middle" fill="#e6edf3" font-size="10">勝利</text>
+        <text x="${cx}" y="${cy+10}" text-anchor="middle" fill="#e6edf3" font-size="10">確率</text>
+      </svg>
+      <div class="donut-legend">${legend}</div>
+    </div>
+  `;
+}
+
+function renderFactorDetail(predictions) {
+  const sel = document.getElementById('detail-horse-select');
+  sel.innerHTML = '';
+  predictions.forEach((p, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${p.horse.number}番 ${p.horse.name} (${fmtPct(p.winProb)})`;
+    sel.appendChild(opt);
+  });
+
+  function updateFactors(idx) {
+    const pred = predictions[idx];
+    const container = document.getElementById('factor-detail');
+    const factorColors = ['#f1c40f','#e74c3c','#27ae60','#3498db','#9b59b6','#e67e22'];
+    let html = '';
+    Object.values(pred.factors).forEach((f, i) => {
+      html += `
+        <div class="factor-item">
+          <div class="factor-name">${f.label}</div>
+          <div class="factor-bar-bg">${
+            `<div class="factor-bar" style="width:${f.value.toFixed(0)}%;background:${factorColors[i]}"></div>`
+          }</div>
+          <div class="factor-val" style="color:${factorColors[i]}">${f.value.toFixed(0)}</div>
+        </div>
+      `;
+    });
+    html += `<div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--text2);font-size:0.85rem">総合スコア</span>
+      <span style="font-size:1.2rem;font-weight:bold;color:var(--gold2)">${pred.score.toFixed(1)}</span>
+    </div>`;
+
+    // 予想根拠
+    if (currentRace) {
+      const basis = generatePredictionBasis(pred, currentRace);
+      if (basis.points.length > 0) {
+        html += `<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+          <div style="font-size:0.78rem;color:var(--text2);margin-bottom:6px">予想根拠</div>
+          ${basis.points.map(p=>`<div style="font-size:0.8rem;color:#5dade2;margin-bottom:3px">✓ ${p}</div>`).join('')}
+          ${basis.warnings.map(w=>`<div style="font-size:0.8rem;color:#e67e22;margin-bottom:3px">△ ${w}</div>`).join('')}
+        </div>`;
+      }
+    }
+    container.innerHTML = html;
+  }
+
+  sel.addEventListener('change', () => updateFactors(+sel.value));
+  updateFactors(0);
+}
+
+function renderStrategies(strategies, budget, targetReturn) {
+  const grid = document.getElementById('strategies-grid');
+  document.getElementById('strategy-target-label').textContent =
+    `賭け金 ${fmtYen(budget)} → 目標 ${fmtYen(targetReturn)} (${(targetReturn/budget).toFixed(1)}倍)`;
+
+  grid.innerHTML = '';
+
+  strategies.forEach(s => {
+    const ev = s.ev;
+    const evPct = Math.min(Math.max(ev * 100, -100), 200);
+    const evColor = ev >= 0 ? '#27ae60' : '#e74c3c';
+    const evBarClass = ev >= 0 ? 'ev-positive' : 'ev-negative';
+    const evBarW = Math.min(Math.abs(evPct), 100);
+
+    const betsHtml = s.bets.map(b => `
+      <div class="bet-row">
+        <div class="bet-horse">${b.label}</div>
+        <div class="bet-amount">${fmtYen(b.amount)}</div>
+      </div>
+    `).join('');
+
+    const targetIcon = s.achievesTarget ? '✅' : '⚠️';
+    const targetColor = s.achievesTarget ? 'var(--green)' : 'var(--text2)';
+
+    const card = document.createElement('div');
+    card.className = 'strategy-card' + (s.isBest ? ' best' : '');
+    card.innerHTML = `
+      ${s.isBest ? '<div class="best-badge">⭐ 推奨</div>' : ''}
+      <div class="strategy-type">${s.icon} ${s.type}</div>
+      <div class="strategy-name">${s.desc}</div>
+
+      <div class="strategy-stats">
+        <div class="stat-item">
+          <label>的中確率</label>
+          <div class="value value-blue">${fmtPct(s.winProb)}</div>
+        </div>
+        <div class="stat-item">
+          <label>的中時払戻（目安）</label>
+          <div class="value value-green">${fmtYen(s.hitReturn || s.expectedReturn)}</div>
+        </div>
+        <div class="stat-item">
+          <label>投資合計</label>
+          <div class="value">${fmtYen(s.totalBet)}</div>
+        </div>
+        <div class="stat-item">
+          <label>目標達成率</label>
+          <div class="value" style="color:${targetColor}">${targetIcon} ${(s.targetRatio * 100).toFixed(0)}%</div>
+        </div>
+      </div>
+
+      ${s.basis ? `<div style="font-size:0.78rem;color:var(--text2);background:var(--bg3);border-radius:6px;padding:8px 10px;margin-bottom:10px;line-height:1.5">
+        📝 ${s.basis}
+      </div>` : ''}
+
+      <div style="font-size:0.78rem;color:var(--text2);margin-bottom:6px">買い目（${s.bets.length}通り）</div>
+      <div class="strategy-bets">${betsHtml}</div>
+
+      <div class="ev-bar-wrap">
+        <div class="ev-bar-label">
+          <span>理論期待値</span>
+          <span style="color:${evColor};font-weight:bold">${ev >= 0 ? '+' : ''}${evPct.toFixed(1)}%</span>
+        </div>
+        <div class="ev-bar-bg">
+          <div class="ev-bar ${evBarClass}" style="width:${evBarW}%"></div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ============================================================
+// イベント
+// ============================================================
+
+document.getElementById('budget').addEventListener('input', updateMultiplierHint);
+document.getElementById('target-return').addEventListener('input', updateMultiplierHint);
+
+function updateMultiplierHint() {
+  const b = +document.getElementById('budget').value || 0;
+  const t = +document.getElementById('target-return').value || 0;
+  const hint = document.getElementById('multiplier-hint');
+  if (b > 0 && t > 0) {
+    const m = (t / b).toFixed(1);
+    hint.textContent = `目標倍率: ${m}倍 ─ ${getStrategyHint(t / b)}`;
+  }
+}
+
+function getStrategyHint(mult) {
+  if (mult < 1.5) return '単勝・複勝が現実的';
+  if (mult < 3)   return '馬連・分散単勝を推奨';
+  if (mult < 10)  return '馬単・三連複が候補';
+  if (mult < 30)  return '三連複・三連単を検討';
+  return '三連単でハイリターンを狙う';
+}
+
+document.getElementById('race-select').addEventListener('change', function() {
+  const raceId = this.value;
+  if (!raceId) return;
+  currentRace = RACES.find(r => r.id === raceId);
+  showRaceMeta(currentRace);
+  document.getElementById('analyze-btn').disabled = false;
+  document.getElementById('horses-card').style.display = 'none';
+  document.getElementById('results-section').style.display = 'none';
+  updateMultiplierHint();
+});
+
+document.getElementById('analyze-btn').addEventListener('click', function() {
+  if (!currentRace) return;
+
+  const budget = +document.getElementById('budget').value || 10000;
+  const targetReturn = +document.getElementById('target-return').value || 30000;
+  const condOverride = document.getElementById('condition-override').value || null;
+
+  this.textContent = '分析中...';
+  this.disabled = true;
+
+  setTimeout(() => {
+    currentPredictions = predictRace(currentRace, condOverride);
+    const strategies = optimizeBetting(currentPredictions, budget, targetReturn, currentRace);
+
+    // 出馬表
+    document.getElementById('horses-card').style.display = 'block';
+    renderHorseTable(currentPredictions);
+
+    // 結果
+    document.getElementById('results-section').style.display = 'block';
+    renderProbChart(currentPredictions);
+    renderFactorDetail(currentPredictions);
+    renderStrategies(strategies, budget, targetReturn);
+
+    this.textContent = '🔍 予想・最適戦略を計算する';
+    this.disabled = false;
+
+    document.getElementById('horses-card').scrollIntoView({ behavior: 'smooth' });
+  }, 400);
+});
+
+// ============================================================
+// 初期化
+// ============================================================
+initRaceSelect();
+updateMultiplierHint();
+</script>
+</body>
+</html>
