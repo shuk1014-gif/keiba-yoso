@@ -432,6 +432,39 @@
   .hc-10 { background: #7f8c8d; color: #fff; }
   .hc-11 { background: #2c3e50; color: #fff; }
   .hc-12 { background: #c0392b; color: #fff; }
+  .hc-13 { background: #8e44ad; color: #fff; }
+  .hc-14 { background: #16a085; color: #fff; }
+  .hc-15 { background: #e91e63; color: #fff; }
+  .hc-16 { background: #795548; color: #fff; }
+  .hc-17 { background: #607d8b; color: #fff; }
+  .hc-18 { background: #f57f17; color: #fff; }
+  .hc-19 { background: #0288d1; color: #fff; }
+  .hc-20 { background: #558b2f; color: #fff; }
+
+  /* ===== RUNNING STYLE BADGE ===== */
+  .style-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-weight: bold;
+    margin-right: 4px;
+  }
+  .style-escape  { background: #c0392b22; color: #e74c3c; border: 1px solid #e74c3c55; }
+  .style-lead    { background: #e67e2222; color: #e67e22; border: 1px solid #e67e2255; }
+  .style-stalk   { background: #27ae6022; color: #27ae60; border: 1px solid #27ae6055; }
+  .style-close   { background: #2980b922; color: #5dade2; border: 1px solid #5dade255; }
+  .workout-badge {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-weight: bold;
+  }
+  .workout-S { background: #f1c40f33; color: #f1c40f; border: 1px solid #f1c40f55; }
+  .workout-A { background: #27ae6033; color: #27ae60; border: 1px solid #27ae6055; }
+  .workout-B { background: #3498db33; color: #5dade2; border: 1px solid #5dade255; }
+  .workout-C { background: #7f8c8d33; color: #95a5a6; border: 1px solid #95a5a655; }
 </style>
 </head>
 <body>
@@ -500,10 +533,10 @@
   <div class="card" id="horses-card" style="display:none;margin-bottom:20px">
     <h2>🐴 出走馬一覧 & 予想オッズ</h2>
     <div class="alert alert-warning" style="margin-bottom:14px">
-      📋 <strong>日本ダービー（5/31）</strong>は実際の出走馬・騎手・前日オッズを使用しています（出典：JRA公式・netkeiba・各競馬メディア）。近走戦績・適性スコアは公開情報をもとに構築しています。宝塚記念・安田記念はサンプルデータです。
+      📋 <strong>安田記念（6/7 東京11R G1）</strong>は登録馬・騎手・推定オッズを使用（JRA公式・netkeiba・各競馬メディア参照）。最終18頭・枠順は6月4日(木)確定予定。近走戦績・適性スコアは公開情報をもとに推計しています。
     </div>
     <div class="alert alert-info" style="margin-bottom:14px">
-      📊 予想根拠：戦績（勝率・複勝率）・馬場適性・距離適性・最近5走の調子・騎手勝率・市場オッズとの乖離を総合スコア化して予想確率を算出しています
+      📊 予想根拠（12ファクター）：勝率・複勝率・馬場適性・距離適性・コース(左右回り)適性・競馬場適性・近走実績・上がり末脚・ペース適性・騎手総合・騎手×会場・状態調教 を総合スコア化して予想確率を算出しています
     </div>
     <div class="table-scroll">
       <table class="horse-table" id="horse-table">
@@ -570,417 +603,8 @@
 // ============================================================
 const RACES = [
   {
-    id: "derby2026",
-    name: "第93回 東京優駿（日本ダービー）",
-    venue: "東京競馬場",
-    grade: "G1",
-    raceNo: "11R",
-    date: "2026-05-31",
-    distance: 2400,
-    surface: "芝",
-    trackCondition: "良",
-    weather: "晴",
-    desc: "3歳クラシック第2冠。ホープフルS・皐月賞2冠のロブチェン（松山）が史上初の快挙に挑む。対抗は皐月賞2着・東京2戦2勝のリアライズシリウス（津村）。青葉賞同距離勝ちのゴーイントゥスカイ（武豊）、無敗のコンジェスタス（西村）も要注意。東京芝2400m・前日1番人気ロブチェン3.2倍。",
-    horses: [
-      {
-        number: 1, name: "ライヒスアドラー", age: 3, sex: "牡",
-        weight: 474, jockey: "佐々木大輔", trainer: "木村哲也", odds: 11.4,
-        stats: { wins: 1, second: 1, third: 1, total: 4 },
-        trackPerf: { "良": 88, "稍重": 80, "重": 72, "不良": 60 },
-        surfPerf: { "芝": 90, "ダート": 40 },
-        distPerf: { sprint: 52, mile: 74, middle: 88, long: 85 },
-        jockeyWinRate: 0.08,
-        recentRaces: [
-          { pos: 1, total: 10, name: "新馬" },
-          { pos: 4, total: 14, name: "百日草特別" },
-          { pos: 2, total: 14, name: "弥生賞" },
-          { pos: 3, total: 18, name: "皐月賞" }
-        ]
-      },
-      {
-        number: 2, name: "マテンロウゲイル", age: 3, sex: "牡",
-        weight: 472, jockey: "横山和生", trainer: "昆貢", odds: 32.8,
-        stats: { wins: 2, second: 1, third: 1, total: 6 },
-        trackPerf: { "良": 75, "稍重": 72, "重": 68, "不良": 60 },
-        surfPerf: { "芝": 80, "ダート": 42 },
-        distPerf: { sprint: 60, mile: 76, middle: 78, long: 72 },
-        jockeyWinRate: 0.09,
-        recentRaces: [
-          { pos: 1, total: 10, name: "新馬" },
-          { pos: 3, total: 12, name: "1勝クラス" },
-          { pos: 1, total: 12, name: "1勝クラス" },
-          { pos: 2, total: 14, name: "京成杯" },
-          { pos: 5, total: 16, name: "弥生賞" },
-          { pos: 10, total: 18, name: "皐月賞" }
-        ]
-      },
-      {
-        number: 3, name: "ケントン", age: 3, sex: "牡",
-        weight: 464, jockey: "丹内祐次", trainer: "鹿戸雄一", odds: 250.5,
-        stats: { wins: 2, second: 1, third: 0, total: 6 },
-        trackPerf: { "良": 64, "稍重": 64, "重": 60, "不良": 55 },
-        surfPerf: { "芝": 68, "ダート": 52 },
-        distPerf: { sprint: 55, mile: 65, middle: 70, long: 62 },
-        jockeyWinRate: 0.06,
-        recentRaces: [
-          { pos: 1, total: 10, name: "新馬" },
-          { pos: 2, total: 12, name: "未勝利" },
-          { pos: 1, total: 12, name: "1勝クラス" },
-          { pos: 7, total: 14, name: "1勝クラス" },
-          { pos: 8, total: 14, name: "2勝クラス" },
-          { pos: 10, total: 14, name: "青葉賞" }
-        ]
-      },
-      {
-        number: 4, name: "アルトラムス", age: 3, sex: "牡",
-        weight: 468, jockey: "横山武史", trainer: "矢作芳人", odds: 70.0,
-        stats: { wins: 2, second: 1, third: 0, total: 4 },
-        trackPerf: { "良": 78, "稍重": 72, "重": 65, "不良": 55 },
-        surfPerf: { "芝": 82, "ダート": 46 },
-        distPerf: { sprint: 62, mile: 80, middle: 82, long: 70 },
-        jockeyWinRate: 0.10,
-        recentRaces: [
-          { pos: 1, total: 10, name: "新馬" },
-          { pos: 2, total: 12, name: "1勝クラス" },
-          { pos: 1, total: 14, name: "毎日杯" },
-          { pos: 18, total: 18, name: "皐月賞" }
-        ]
-      },
-      {
-        number: 5, name: "バステール", age: 3, sex: "牡",
-        weight: 462, jockey: "川田将雅", trainer: "高橋文雅", odds: 25.4,
-        stats: { wins: 2, second: 0, third: 0, total: 4 },
-        trackPerf: { "良": 84, "稍重": 77, "重": 68, "不良": 58 },
-        surfPerf: { "芝": 86, "ダート": 40 },
-        distPerf: { sprint: 58, mile: 74, middle: 85, long: 83 },
-        jockeyWinRate: 0.17,
-        recentRaces: [
-          { pos: 1, total: 10, name: "新馬" },
-          { pos: 4, total: 14, name: "1勝クラス" },
-          { pos: 1, total: 14, name: "弥生賞" },
-          { pos: 11, total: 18, name: "皐月賞" }
-        ]
-      },
-      {
-        number: 6, name: "コンジェスタス", age: 3, sex: "牡",
-        weight: 488, jockey: "西村淳也", trainer: "奥村武", odds: 16.3,
-        stats: { wins: 3, second: 0, third: 0, total: 3 },
-        trackPerf: { "良": 92, "稍重": 82, "重": 72, "不良": 60 },
-        surfPerf: { "芝": 94, "ダート": 35 },
-        distPerf: { sprint: 52, mile: 72, middle: 88, long: 91 },
-        jockeyWinRate: 0.10,
-        recentRaces: [
-          { pos: 1, total: 12, name: "新馬" },
-          { pos: 1, total: 12, name: "1勝クラス" },
-          { pos: 1, total: 14, name: "京都新聞杯" }
-        ]
-      },
-      {
-        number: 7, name: "メイショウハチコウ", age: 3, sex: "牡",
-        weight: 484, jockey: "M.ディー", trainer: "梅田智之", odds: 75.0,
-        stats: { wins: 3, second: 0, third: 1, total: 5 },
-        trackPerf: { "良": 80, "稍重": 75, "重": 68, "不良": 58 },
-        surfPerf: { "芝": 82, "ダート": 48 },
-        distPerf: { sprint: 60, mile: 74, middle: 82, long: 78 },
-        jockeyWinRate: 0.10,
-        recentRaces: [
-          { pos: 1, total: 10, name: "新馬" },
-          { pos: 3, total: 12, name: "1勝クラス" },
-          { pos: 1, total: 12, name: "1勝クラス" },
-          { pos: 16, total: 16, name: "ホープフルS" },
-          { pos: 1, total: 14, name: "プリンシパルS" }
-        ]
-      },
-      {
-        number: 8, name: "ショウナンガルフ", age: 3, sex: "牡",
-        weight: 466, jockey: "浜中俊", trainer: "松下武士", odds: 130.0,
-        stats: { wins: 2, second: 0, third: 0, total: 6 },
-        trackPerf: { "良": 70, "稍重": 72, "重": 70, "不良": 64 },
-        surfPerf: { "芝": 74, "ダート": 50 },
-        distPerf: { sprint: 70, mile: 72, middle: 70, long: 62 },
-        jockeyWinRate: 0.09,
-        recentRaces: [
-          { pos: 1, total: 10, name: "新馬" },
-          { pos: 6, total: 12, name: "未勝利" },
-          { pos: 1, total: 14, name: "札幌2歳S" },
-          { pos: 5, total: 12, name: "1勝クラス" },
-          { pos: 7, total: 14, name: "1勝クラス" },
-          { pos: 14, total: 16, name: "ホープフルS" }
-        ]
-      },
-      {
-        number: 9, name: "アウダーシア", age: 3, sex: "牡",
-        weight: 476, jockey: "D.レーン", trainer: "宮本博", odds: 17.2,
-        stats: { wins: 2, second: 1, third: 0, total: 4 },
-        trackPerf: { "良": 86, "稍重": 78, "重": 68, "不良": 55 },
-        surfPerf: { "芝": 88, "ダート": 38 },
-        distPerf: { sprint: 58, mile: 80, middle: 85, long: 76 },
-        jockeyWinRate: 0.16,
-        recentRaces: [
-          { pos: 1, total: 10, name: "新馬" },
-          { pos: 4, total: 12, name: "1勝クラス" },
-          { pos: 2, total: 12, name: "1勝クラス" },
-          { pos: 1, total: 16, name: "スプリングS" }
-        ]
-      },
-      {
-        number: 10, name: "ジャスティンビスタ", age: 3, sex: "牡",
-        weight: 478, jockey: "坂井瑠星", trainer: "安田翔伍", odds: 50.0,
-        stats: { wins: 2, second: 0, third: 0, total: 3 },
-        trackPerf: { "良": 76, "稍重": 70, "重": 62, "不良": 52 },
-        surfPerf: { "芝": 78, "ダート": 45 },
-        distPerf: { sprint: 58, mile: 74, middle: 78, long: 72 },
-        jockeyWinRate: 0.12,
-        recentRaces: [
-          { pos: 1, total: 10, name: "新馬" },
-          { pos: 1, total: 12, name: "1勝クラス" },
-          { pos: 8, total: 16, name: "ホープフルS" }
-        ]
-      },
-      {
-        number: 11, name: "リアライズシリウス", age: 3, sex: "牡",
-        weight: 484, jockey: "津村明秀", trainer: "須貝尚介", odds: 5.3,
-        stats: { wins: 3, second: 1, third: 0, total: 5 },
-        trackPerf: { "良": 92, "稍重": 80, "重": 68, "不良": 56 },
-        surfPerf: { "芝": 94, "ダート": 36 },
-        distPerf: { sprint: 52, mile: 82, middle: 88, long: 91 },
-        jockeyWinRate: 0.09,
-        recentRaces: [
-          { pos: 1, total: 10, name: "新馬" },
-          { pos: 4, total: 12, name: "1勝クラス" },
-          { pos: 1, total: 14, name: "弥生賞" },
-          { pos: 1, total: 12, name: "共同通信杯" },
-          { pos: 2, total: 18, name: "皐月賞" }
-        ]
-      },
-      {
-        number: 12, name: "アスクエジンバラ", age: 3, sex: "牡",
-        weight: 460, jockey: "岩田康誠", trainer: "戸田博文", odds: 28.7,
-        stats: { wins: 2, second: 1, third: 2, total: 8 },
-        trackPerf: { "良": 82, "稍重": 78, "重": 72, "不良": 62 },
-        surfPerf: { "芝": 85, "ダート": 42 },
-        distPerf: { sprint: 54, mile: 76, middle: 85, long: 84 },
-        jockeyWinRate: 0.09,
-        recentRaces: [
-          { pos: 1, total: 10, name: "新馬" },
-          { pos: 3, total: 12, name: "未勝利" },
-          { pos: 5, total: 14, name: "1勝クラス" },
-          { pos: 1, total: 12, name: "1勝クラス" },
-          { pos: 3, total: 16, name: "ホープフルS" },
-          { pos: 2, total: 14, name: "弥生賞" },
-          { pos: 4, total: 18, name: "皐月賞" }
-        ]
-      },
-      {
-        number: 13, name: "パントルナイーフ", age: 3, sex: "牡",
-        weight: 480, jockey: "C.ルメール", trainer: "久保田貴士", odds: 22.8,
-        stats: { wins: 2, second: 1, third: 0, total: 4 },
-        trackPerf: { "良": 84, "稍重": 76, "重": 66, "不良": 54 },
-        surfPerf: { "芝": 88, "ダート": 38 },
-        distPerf: { sprint: 60, mile: 82, middle: 84, long: 78 },
-        jockeyWinRate: 0.22,
-        recentRaces: [
-          { pos: 1, total: 10, name: "新馬" },
-          { pos: 1, total: 14, name: "東スポ杯2歳S" },
-          { pos: 2, total: 14, name: "弥生賞" },
-          { pos: 14, total: 18, name: "皐月賞" }
-        ]
-      },
-      {
-        number: 14, name: "ゴーイントゥスカイ", age: 3, sex: "牡",
-        weight: 502, jockey: "武豊", trainer: "音無秀孝", odds: 13.8,
-        stats: { wins: 2, second: 1, third: 1, total: 6 },
-        trackPerf: { "良": 90, "稍重": 80, "重": 70, "不良": 58 },
-        surfPerf: { "芝": 92, "ダート": 38 },
-        distPerf: { sprint: 52, mile: 74, middle: 86, long: 96 },
-        jockeyWinRate: 0.13,
-        recentRaces: [
-          { pos: 1, total: 10, name: "新馬" },
-          { pos: 3, total: 12, name: "1勝クラス" },
-          { pos: 2, total: 14, name: "1勝クラス" },
-          { pos: 4, total: 14, name: "もみじS" },
-          { pos: 1, total: 12, name: "1勝クラス" },
-          { pos: 1, total: 14, name: "青葉賞" }
-        ]
-      },
-      {
-        number: 15, name: "フォルテアンジェロ", age: 3, sex: "牡",
-        weight: 452, jockey: "荻野極", trainer: "相沢郁", odds: 21.2,
-        stats: { wins: 1, second: 1, third: 0, total: 4 },
-        trackPerf: { "良": 84, "稍重": 78, "重": 70, "不良": 60 },
-        surfPerf: { "芝": 87, "ダート": 40 },
-        distPerf: { sprint: 52, mile: 74, middle: 84, long: 87 },
-        jockeyWinRate: 0.07,
-        recentRaces: [
-          { pos: 1, total: 10, name: "新馬" },
-          { pos: 4, total: 14, name: "1勝クラス" },
-          { pos: 2, total: 16, name: "ホープフルS" },
-          { pos: 5, total: 18, name: "皐月賞" }
-        ]
-      },
-      {
-        number: 16, name: "グリーンエナジー", age: 3, sex: "牡",
-        weight: 488, jockey: "戸崎圭太", trainer: "辻野泰之", odds: 6.3,
-        stats: { wins: 2, second: 0, third: 0, total: 4 },
-        trackPerf: { "良": 85, "稍重": 78, "重": 70, "不良": 58 },
-        surfPerf: { "芝": 88, "ダート": 40 },
-        distPerf: { sprint: 60, mile: 78, middle: 86, long: 80 },
-        jockeyWinRate: 0.12,
-        recentRaces: [
-          { pos: 1, total: 10, name: "新馬" },
-          { pos: 5, total: 12, name: "1勝クラス" },
-          { pos: 1, total: 14, name: "京成杯" },
-          { pos: 7, total: 18, name: "皐月賞" }
-        ]
-      },
-      {
-        number: 17, name: "ロブチェン", age: 3, sex: "牡",
-        weight: 480, jockey: "松山弘平", trainer: "杉山晴紀", odds: 3.2,
-        stats: { wins: 3, second: 0, third: 1, total: 4 },
-        trackPerf: { "良": 96, "稍重": 84, "重": 74, "不良": 60 },
-        surfPerf: { "芝": 97, "ダート": 32 },
-        distPerf: { sprint: 50, mile: 78, middle: 95, long: 90 },
-        jockeyWinRate: 0.12,
-        recentRaces: [
-          { pos: 1, total: 10, name: "新馬" },
-          { pos: 1, total: 15, name: "ホープフルS" },
-          { pos: 3, total: 12, name: "共同通信杯" },
-          { pos: 1, total: 18, name: "皐月賞" }
-        ]
-      },
-      {
-        number: 18, name: "エムズビギン", age: 3, sex: "牡",
-        weight: 476, jockey: "F.ゴンサルベス", trainer: "笹田和秀", odds: 37.9,
-        stats: { wins: 1, second: 1, third: 1, total: 6 },
-        trackPerf: { "良": 72, "稍重": 70, "重": 66, "不良": 60 },
-        surfPerf: { "芝": 76, "ダート": 50 },
-        distPerf: { sprint: 58, mile: 72, middle: 76, long: 73 },
-        jockeyWinRate: 0.07,
-        recentRaces: [
-          { pos: 5, total: 12, name: "新馬" },
-          { pos: 1, total: 10, name: "未勝利" },
-          { pos: 3, total: 12, name: "1勝クラス" },
-          { pos: 4, total: 14, name: "1勝クラス" },
-          { pos: 2, total: 14, name: "きさらぎ賞" },
-          { pos: 6, total: 14, name: "1勝クラス" }
-        ]
-      }
-    ]
-  },
-  {
-    id: "race002",
-    name: "宝塚記念",
-    venue: "阪神競馬場",
-    grade: "G1",
-    raceNo: "11R",
-    date: "2026-06-28",
-    distance: 2200,
-    surface: "芝",
-    trackCondition: "稍重",
-    weather: "曇",
-    desc: "上半期グランプリ。内回り2200mで機動力と底力が試される。稍重で時計が掛かる傾向。",
-    horses: [
-      {
-        number: 1, name: "クロノスキング", age: 5, sex: "牡",
-        weight: 502, jockey: "武豊", trainer: "池江泰寿", odds: 3.2,
-        stats: { wins: 8, second: 3, third: 1, total: 15 },
-        trackPerf: { "良": 85, "稍重": 88, "重": 85, "不良": 80 },
-        surfPerf: { "芝": 90, "ダート": 55 },
-        distPerf: { sprint: 60, mile: 75, middle: 92, long: 88 },
-        jockeyWinRate: 0.18,
-        recentRaces: [
-          { pos: 1, total: 16, name: "天皇賞(春)" },
-          { pos: 2, total: 14, name: "大阪杯" },
-          { pos: 1, total: 12, name: "有馬記念" },
-          { pos: 1, total: 14, name: "天皇賞(秋)" },
-          { pos: 2, total: 16, name: "宝塚記念" }
-        ]
-      },
-      {
-        number: 2, name: "オーシャンドリーム", age: 4, sex: "牡",
-        weight: 486, jockey: "ルメール", trainer: "堀宣行", odds: 4.5,
-        stats: { wins: 6, second: 2, third: 2, total: 12 },
-        trackPerf: { "良": 88, "稍重": 82, "重": 70, "不良": 58 },
-        surfPerf: { "芝": 92, "ダート": 40 },
-        distPerf: { sprint: 55, mile: 82, middle: 90, long: 85 },
-        jockeyWinRate: 0.23,
-        recentRaces: [
-          { pos: 2, total: 14, name: "天皇賞(春)" },
-          { pos: 1, total: 12, name: "大阪杯" },
-          { pos: 3, total: 14, name: "有馬記念" },
-          { pos: 1, total: 12, name: "天皇賞(秋)" },
-          { pos: 1, total: 14, name: "ジャパンC" }
-        ]
-      },
-      {
-        number: 3, name: "スターリングロード", age: 5, sex: "牝",
-        weight: 462, jockey: "川田将雅", trainer: "友道康夫", odds: 5.0,
-        stats: { wins: 7, second: 4, third: 1, total: 14 },
-        trackPerf: { "良": 90, "稍重": 85, "重": 78, "不良": 65 },
-        surfPerf: { "芝": 95, "ダート": 30 },
-        distPerf: { sprint: 65, mile: 90, middle: 92, long: 82 },
-        jockeyWinRate: 0.20,
-        recentRaces: [
-          { pos: 1, total: 14, name: "ヴィクトリアマイル" },
-          { pos: 1, total: 12, name: "大阪杯" },
-          { pos: 2, total: 14, name: "エリザベス女王杯" },
-          { pos: 1, total: 12, name: "秋華賞" },
-          { pos: 1, total: 14, name: "ローズS" }
-        ]
-      },
-      {
-        number: 4, name: "フォルテッシモ", age: 4, sex: "牡",
-        weight: 494, jockey: "戸崎圭太", trainer: "角居勝彦", odds: 8.0,
-        stats: { wins: 4, second: 3, third: 3, total: 11 },
-        trackPerf: { "良": 76, "稍重": 82, "重": 86, "不良": 80 },
-        surfPerf: { "芝": 82, "ダート": 68 },
-        distPerf: { sprint: 70, mile: 78, middle: 85, long: 82 },
-        jockeyWinRate: 0.15,
-        recentRaces: [
-          { pos: 3, total: 14, name: "天皇賞(春)" },
-          { pos: 4, total: 12, name: "大阪杯" },
-          { pos: 2, total: 14, name: "有馬記念" },
-          { pos: 1, total: 12, name: "金鯱賞" },
-          { pos: 2, total: 14, name: "中日新聞杯" }
-        ]
-      },
-      {
-        number: 5, name: "ミラクルストーム", age: 6, sex: "牡",
-        weight: 510, jockey: "松山弘平", trainer: "高橋義忠", odds: 15.0,
-        stats: { wins: 5, second: 6, third: 2, total: 18 },
-        trackPerf: { "良": 72, "稍重": 80, "重": 84, "不良": 82 },
-        surfPerf: { "芝": 78, "ダート": 75 },
-        distPerf: { sprint: 75, mile: 80, middle: 82, long: 80 },
-        jockeyWinRate: 0.13,
-        recentRaces: [
-          { pos: 4, total: 14, name: "天皇賞(春)" },
-          { pos: 2, total: 12, name: "阪神大賞典" },
-          { pos: 3, total: 14, name: "有馬記念" },
-          { pos: 5, total: 12, name: "天皇賞(秋)" },
-          { pos: 2, total: 14, name: "宝塚記念" }
-        ]
-      },
-      {
-        number: 6, name: "ライジングサン", age: 4, sex: "牡",
-        weight: 478, jockey: "横山武史", trainer: "国枝栄", odds: 7.0,
-        stats: { wins: 5, second: 2, third: 1, total: 10 },
-        trackPerf: { "良": 86, "稍重": 80, "重": 72, "不良": 60 },
-        surfPerf: { "芝": 90, "ダート": 45 },
-        distPerf: { sprint: 58, mile: 82, middle: 88, long: 84 },
-        jockeyWinRate: 0.14,
-        recentRaces: [
-          { pos: 5, total: 14, name: "天皇賞(春)" },
-          { pos: 1, total: 12, name: "大阪杯" },
-          { pos: 4, total: 14, name: "有馬記念" },
-          { pos: 1, total: 12, name: "天皇賞(秋)" },
-          { pos: 2, total: 14, name: "毎日王冠" }
-        ]
-      }
-    ]
-  },
-  {
-    id: "race003",
-    name: "安田記念",
+    id: "yasuda2026",
+    name: "第72回 安田記念",
     venue: "東京競馬場",
     grade: "G1",
     raceNo: "11R",
@@ -989,102 +613,444 @@ const RACES = [
     surface: "芝",
     trackCondition: "良",
     weather: "晴",
-    desc: "春のマイル王決定戦。東京1600m良馬場で先行力とスピードが重要。",
+    courseFeature: "左回り・直線502m・緩やか坂あり",
+    postPositionTrend: "外枠やや不利、内枠先行有利",
+    expectedPace: "ミドル",
+    desc: "第72回 安田記念 G1。東京芝1600m左回り。春のマイル最高峰。20頭登録→最終18頭・枠順は6/4(木)確定予定。推定1番人気アドマイヤズーム（3.8倍）。4歳世代の台頭で世代交代が問われる混戦模様。直線502mの末脚勝負。",
     horses: [
       {
-        number: 1, name: "ベルカント", age: 5, sex: "牝",
-        weight: 454, jockey: "ルメール", trainer: "堀宣行", odds: 2.5,
-        stats: { wins: 9, second: 2, third: 1, total: 14 },
-        trackPerf: { "良": 96, "稍重": 80, "重": 65, "不良": 52 },
-        surfPerf: { "芝": 98, "ダート": 20 },
-        distPerf: { sprint: 85, mile: 98, middle: 75, long: 50 },
-        jockeyWinRate: 0.23,
+        number: 1, name: "アドマイヤズーム", age: 5, sex: "牡",
+        weight: 488, weightChange: -2,
+        jockey: "武豊", trainer: "池江泰寿", owner: "近藤利一", breeder: "ノーザンファーム",
+        sire: "エピファネイア", dam: "アドマイヤラピス", damsire: "ディープインパクト",
+        odds: 3.8,
+        stats: { wins: 8, second: 3, third: 1, total: 14 },
+        trackPerf: { "良": 93, "稍重": 85, "重": 74, "不良": 60 },
+        surfPerf: { "芝": 95, "ダート": 30 },
+        distPerf: { sprint: 72, mile: 97, middle: 82, long: 60 },
+        coursePerf: { right: 84, left: 96 },
+        venuePref: 95,
+        runningStyle: "差し",
+        avgLast3f: 33.3,
+        paceAdaptability: { high: 82, mid: 92, slow: 85 },
+        jockeyWinRate: 0.18, jockeyVenueRate: 0.22, jockeyContinued: true,
+        workoutGrade: "A", workoutNote: "坂路2本・好時計。動き軽快",
+        conditionScore: 88,
         recentRaces: [
-          { pos: 1, total: 16, name: "ヴィクトリアマイル" },
-          { pos: 1, total: 14, name: "マイルCS" },
-          { pos: 1, total: 12, name: "阪神カップ" },
-          { pos: 2, total: 14, name: "安田記念" },
-          { pos: 1, total: 12, name: "富士S" }
+          { pos: 2, total: 16, name: "マイラーズC",   date: "2026-04-26", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.2, runningPos4: 7, pace: "ミドル" },
+          { pos: 1, total: 14, name: "京都金杯",       date: "2026-01-05", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.5, runningPos4: 8, pace: "スロー" },
+          { pos: 1, total: 14, name: "富士S",           date: "2025-10-25", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.1, runningPos4: 6, pace: "スロー" },
+          { pos: 3, total: 18, name: "安田記念",        date: "2025-06-08", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.8, runningPos4: 9, pace: "ハイ" }
         ]
       },
       {
-        number: 2, name: "スプリントキング", age: 6, sex: "牡",
-        weight: 488, jockey: "川田将雅", trainer: "藤岡健一", odds: 3.5,
-        stats: { wins: 7, second: 4, third: 2, total: 16 },
-        trackPerf: { "良": 90, "稍重": 85, "重": 80, "不良": 72 },
-        surfPerf: { "芝": 92, "ダート": 60 },
-        distPerf: { sprint: 90, mile: 92, middle: 68, long: 45 },
-        jockeyWinRate: 0.20,
+        number: 2, name: "トロヴァトーレ", age: 5, sex: "牡",
+        weight: 492, weightChange: +4,
+        jockey: "C.ルメール", trainer: "藤原英昭", owner: "サンデーレーシング", breeder: "ノーザンファーム",
+        sire: "モーリス", dam: "トレジャー", damsire: "ディープインパクト",
+        odds: 6.3,
+        stats: { wins: 5, second: 3, third: 2, total: 13 },
+        trackPerf: { "良": 90, "稍重": 86, "重": 78, "不良": 65 },
+        surfPerf: { "芝": 93, "ダート": 32 },
+        distPerf: { sprint: 68, mile: 93, middle: 85, long: 62 },
+        coursePerf: { right: 80, left: 93 },
+        venuePref: 92,
+        runningStyle: "先行",
+        avgLast3f: 34.0,
+        paceAdaptability: { high: 78, mid: 88, slow: 90 },
+        jockeyWinRate: 0.21, jockeyVenueRate: 0.25, jockeyContinued: true,
+        workoutGrade: "A", workoutNote: "ウッドで余裕残し。仕上がり良",
+        conditionScore: 84,
         recentRaces: [
-          { pos: 2, total: 16, name: "ヴィクトリアマイル" },
-          { pos: 1, total: 14, name: "マイルCS" },
-          { pos: 1, total: 12, name: "スプリンターズS" },
-          { pos: 1, total: 14, name: "高松宮記念" },
-          { pos: 2, total: 12, name: "阪急杯" }
+          { pos: 1, total: 12, name: "マイラーズC",   date: "2026-04-26", surface: "芝", distance: 1600, trackCondition: "良", last3f: 34.0, runningPos4: 3, pace: "ミドル" },
+          { pos: 2, total: 14, name: "富士S",           date: "2025-10-25", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.8, runningPos4: 4, pace: "スロー" },
+          { pos: 3, total: 16, name: "マイルCS",        date: "2025-11-16", surface: "芝", distance: 1600, trackCondition: "良", last3f: 34.1, runningPos4: 5, pace: "ミドル" }
         ]
       },
       {
-        number: 3, name: "ファントムウィンド", age: 4, sex: "牡",
-        weight: 480, jockey: "武豊", trainer: "角居勝彦", odds: 5.5,
-        stats: { wins: 5, second: 2, third: 2, total: 10 },
-        trackPerf: { "良": 88, "稍重": 78, "重": 65, "不良": 52 },
-        surfPerf: { "芝": 90, "ダート": 50 },
-        distPerf: { sprint: 82, mile: 90, middle: 76, long: 55 },
-        jockeyWinRate: 0.18,
+        number: 3, name: "パンジャタワー", age: 4, sex: "牡",
+        weight: 478, weightChange: +2,
+        jockey: "松山弘平", trainer: "国枝栄", owner: "キャロットファーム", breeder: "ノーザンファーム",
+        sire: "ドゥラメンテ", dam: "パンジャグレイス", damsire: "ハーツクライ",
+        odds: 6.0,
+        stats: { wins: 4, second: 2, third: 1, total: 8 },
+        trackPerf: { "良": 88, "稍重": 84, "重": 78, "不良": 68 },
+        surfPerf: { "芝": 92, "ダート": 35 },
+        distPerf: { sprint: 65, mile: 91, middle: 88, long: 70 },
+        coursePerf: { right: 85, left: 90 },
+        venuePref: 85,
+        runningStyle: "差し",
+        avgLast3f: 33.6,
+        paceAdaptability: { high: 80, mid: 90, slow: 84 },
+        jockeyWinRate: 0.16, jockeyVenueRate: 0.18, jockeyContinued: false,
+        workoutGrade: "S", workoutNote: "追い切りで自己ベスト更新。絶好調",
+        conditionScore: 90,
         recentRaces: [
-          { pos: 3, total: 16, name: "ヴィクトリアマイル" },
-          { pos: 1, total: 14, name: "NHKマイルC" },
-          { pos: 2, total: 12, name: "マイラーズC" },
-          { pos: 1, total: 14, name: "アーリントンC" },
-          { pos: 2, total: 12, name: "ニュージーランドT" }
+          { pos: 1, total: 14, name: "NHKマイルC",    date: "2026-05-03", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.4, runningPos4: 7, pace: "ミドル" },
+          { pos: 1, total: 12, name: "ニュージーランドT", date: "2026-04-06", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.6, runningPos4: 6, pace: "ミドル" },
+          { pos: 2, total: 14, name: "朝日杯FS",       date: "2025-12-21", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.5, runningPos4: 8, pace: "ハイ" }
         ]
       },
       {
-        number: 4, name: "シャイニングスター", age: 5, sex: "牡",
-        weight: 476, jockey: "岩田望来", trainer: "手塚貴久", odds: 8.0,
-        stats: { wins: 4, second: 5, third: 2, total: 14 },
-        trackPerf: { "良": 82, "稍重": 82, "重": 80, "不良": 74 },
-        surfPerf: { "芝": 85, "ダート": 62 },
-        distPerf: { sprint: 80, mile: 85, middle: 78, long: 60 },
-        jockeyWinRate: 0.13,
+        number: 4, name: "ガイアフォース", age: 6, sex: "牡",
+        weight: 508, weightChange: 0,
+        jockey: "横山武史", trainer: "杉山晴紀", owner: "サンデーレーシング", breeder: "社台ファーム",
+        sire: "キタサンブラック", dam: "ガイアストーム", damsire: "ディープインパクト",
+        odds: 7.5,
+        stats: { wins: 6, second: 5, third: 2, total: 16 },
+        trackPerf: { "良": 88, "稍重": 85, "重": 82, "不良": 75 },
+        surfPerf: { "芝": 90, "ダート": 40 },
+        distPerf: { sprint: 60, mile: 88, middle: 90, long: 85 },
+        coursePerf: { right: 86, left: 88 },
+        venuePref: 88,
+        runningStyle: "先行",
+        avgLast3f: 34.2,
+        paceAdaptability: { high: 85, mid: 88, slow: 80 },
+        jockeyWinRate: 0.14, jockeyVenueRate: 0.16, jockeyContinued: true,
+        workoutGrade: "B", workoutNote: "平目追い切りで標準。状態維持",
+        conditionScore: 78,
         recentRaces: [
-          { pos: 4, total: 16, name: "ヴィクトリアマイル" },
-          { pos: 2, total: 14, name: "マイルCS" },
-          { pos: 3, total: 12, name: "阪神カップ" },
-          { pos: 2, total: 14, name: "毎日王冠" },
-          { pos: 2, total: 12, name: "富士S" }
+          { pos: 4, total: 16, name: "マイラーズC",   date: "2026-04-26", surface: "芝", distance: 1600, trackCondition: "良", last3f: 34.5, runningPos4: 4, pace: "ミドル" },
+          { pos: 2, total: 12, name: "中山記念",       date: "2026-03-01", surface: "芝", distance: 1800, trackCondition: "良", last3f: 34.8, runningPos4: 2, pace: "ミドル" },
+          { pos: 1, total: 10, name: "AJCC",            date: "2026-01-25", surface: "芝", distance: 2200, trackCondition: "良", last3f: 35.1, runningPos4: 3, pace: "スロー" },
+          { pos: 2, total: 16, name: "天皇賞(秋)",     date: "2025-10-26", surface: "芝", distance: 2000, trackCondition: "良", last3f: 34.6, runningPos4: 4, pace: "ミドル" }
         ]
       },
       {
-        number: 5, name: "エアスピリット", age: 4, sex: "牡",
-        weight: 470, jockey: "戸崎圭太", trainer: "池添兼雄", odds: 12.0,
-        stats: { wins: 3, second: 3, third: 3, total: 11 },
-        trackPerf: { "良": 80, "稍重": 76, "重": 72, "不良": 64 },
-        surfPerf: { "芝": 83, "ダート": 58 },
-        distPerf: { sprint: 78, mile: 82, middle: 75, long: 58 },
-        jockeyWinRate: 0.15,
+        number: 5, name: "ステレンボッシュ", age: 5, sex: "牝",
+        weight: 464, weightChange: -2,
+        jockey: "D.レーン", trainer: "堀宣行", owner: "吉田勝己", breeder: "ノーザンファーム",
+        sire: "キズナ", dam: "スターズオンアース", damsire: "クロフネ",
+        odds: 14.5,
+        stats: { wins: 5, second: 3, third: 2, total: 13 },
+        trackPerf: { "良": 90, "稍重": 86, "重": 78, "不良": 65 },
+        surfPerf: { "芝": 94, "ダート": 30 },
+        distPerf: { sprint: 75, mile: 92, middle: 85, long: 65 },
+        coursePerf: { right: 82, left: 92 },
+        venuePref: 90,
+        runningStyle: "差し",
+        avgLast3f: 33.5,
+        paceAdaptability: { high: 78, mid: 88, slow: 88 },
+        jockeyWinRate: 0.16, jockeyVenueRate: 0.19, jockeyContinued: false,
+        workoutGrade: "A", workoutNote: "先週追い切りで反応鋭い。状態◎",
+        conditionScore: 82,
         recentRaces: [
-          { pos: 5, total: 16, name: "ヴィクトリアマイル" },
-          { pos: 3, total: 14, name: "マイルCS" },
-          { pos: 2, total: 12, name: "府中牝馬S" },
-          { pos: 3, total: 14, name: "毎日王冠" },
-          { pos: 1, total: 12, name: "関屋記念" }
+          { pos: 3, total: 18, name: "ヴィクトリアマイル", date: "2026-05-17", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.6, runningPos4: 8, pace: "ミドル" },
+          { pos: 1, total: 16, name: "阪神牝馬S",     date: "2026-04-12", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.4, runningPos4: 6, pace: "スロー" },
+          { pos: 2, total: 18, name: "エリザベス女王杯", date: "2025-11-09", surface: "芝", distance: 2200, trackCondition: "良", last3f: 34.2, runningPos4: 7, pace: "スロー" },
+          { pos: 1, total: 18, name: "桜花賞",         date: "2024-04-07", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.8, runningPos4: 9, pace: "ミドル" }
         ]
       },
       {
-        number: 6, name: "ダークネスフォール", age: 5, sex: "牡",
-        weight: 492, jockey: "横山武史", trainer: "矢作芳人", odds: 18.0,
-        stats: { wins: 4, second: 3, third: 3, total: 13 },
-        trackPerf: { "良": 75, "稍重": 78, "重": 80, "不良": 76 },
-        surfPerf: { "芝": 80, "ダート": 72 },
-        distPerf: { sprint: 76, mile: 80, middle: 80, long: 72 },
-        jockeyWinRate: 0.14,
+        number: 6, name: "レーベンスティール", age: 5, sex: "牡",
+        weight: 484, weightChange: +2,
+        jockey: "戸崎圭太", trainer: "田中博康", owner: "シルクレーシング", breeder: "社台ファーム",
+        sire: "リアルスティール", dam: "レーベンスポーツ", damsire: "ハーツクライ",
+        odds: 11.0,
+        stats: { wins: 5, second: 4, third: 2, total: 14 },
+        trackPerf: { "良": 88, "稍重": 84, "重": 78, "不良": 65 },
+        surfPerf: { "芝": 92, "ダート": 35 },
+        distPerf: { sprint: 58, mile: 86, middle: 90, long: 82 },
+        coursePerf: { right: 88, left: 85 },
+        venuePref: 82,
+        runningStyle: "差し",
+        avgLast3f: 33.8,
+        paceAdaptability: { high: 76, mid: 88, slow: 85 },
+        jockeyWinRate: 0.15, jockeyVenueRate: 0.17, jockeyContinued: true,
+        workoutGrade: "B", workoutNote: "ウッド追い切り。標準的な仕上がり",
+        conditionScore: 76,
         recentRaces: [
-          { pos: 6, total: 16, name: "ヴィクトリアマイル" },
-          { pos: 4, total: 14, name: "マイルCS" },
-          { pos: 1, total: 12, name: "エプソムC" },
-          { pos: 2, total: 14, name: "関屋記念" },
-          { pos: 3, total: 12, name: "スワンS" }
+          { pos: 5, total: 18, name: "安田記念",        date: "2025-06-08", surface: "芝", distance: 1600, trackCondition: "良", last3f: 34.0, runningPos4: 9, pace: "ハイ" },
+          { pos: 1, total: 16, name: "毎日王冠",        date: "2025-10-05", surface: "芝", distance: 1800, trackCondition: "良", last3f: 33.6, runningPos4: 7, pace: "ミドル" },
+          { pos: 3, total: 14, name: "中山記念",        date: "2025-03-02", surface: "芝", distance: 1800, trackCondition: "良", last3f: 34.1, runningPos4: 5, pace: "スロー" }
+        ]
+      },
+      {
+        number: 7, name: "ワールズエンド", age: 4, sex: "牝",
+        weight: 456, weightChange: 0,
+        jockey: "津村明秀", trainer: "音無秀孝", owner: "キャロットファーム", breeder: "ノーザンファーム",
+        sire: "ロードカナロア", dam: "ワールドリーダー", damsire: "ディープインパクト",
+        odds: 12.0,
+        stats: { wins: 4, second: 2, third: 1, total: 9 },
+        trackPerf: { "良": 91, "稍重": 84, "重": 72, "不良": 58 },
+        surfPerf: { "芝": 93, "ダート": 35 },
+        distPerf: { sprint: 88, mile: 90, middle: 72, long: 48 },
+        coursePerf: { right: 84, left: 89 },
+        venuePref: 88,
+        runningStyle: "先行",
+        avgLast3f: 33.9,
+        paceAdaptability: { high: 88, mid: 86, slow: 78 },
+        jockeyWinRate: 0.10, jockeyVenueRate: 0.12, jockeyContinued: true,
+        workoutGrade: "A", workoutNote: "坂路で好タイム。仕上がり上々",
+        conditionScore: 80,
+        recentRaces: [
+          { pos: 1, total: 18, name: "ヴィクトリアマイル", date: "2026-05-17", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.8, runningPos4: 2, pace: "ミドル" },
+          { pos: 2, total: 14, name: "阪神牝馬S",     date: "2026-04-12", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.7, runningPos4: 3, pace: "スロー" },
+          { pos: 1, total: 12, name: "フィリーズR",   date: "2025-10-04", surface: "芝", distance: 1400, trackCondition: "良", last3f: 33.5, runningPos4: 2, pace: "スロー" }
+        ]
+      },
+      {
+        number: 8, name: "シックスペンス", age: 4, sex: "牡",
+        weight: 480, weightChange: +4,
+        jockey: "川田将雅", trainer: "安田翔伍", owner: "サンデーレーシング", breeder: "ノーザンファーム",
+        sire: "ブリックスアンドモルタル", dam: "シックスシグマ", damsire: "ステイゴールド",
+        odds: 21.0,
+        stats: { wins: 3, second: 2, third: 2, total: 10 },
+        trackPerf: { "良": 86, "稍重": 82, "重": 76, "不良": 65 },
+        surfPerf: { "芝": 90, "ダート": 40 },
+        distPerf: { sprint: 62, mile: 88, middle: 84, long: 68 },
+        coursePerf: { right: 82, left: 87 },
+        venuePref: 85,
+        runningStyle: "差し",
+        avgLast3f: 34.0,
+        paceAdaptability: { high: 76, mid: 86, slow: 82 },
+        jockeyWinRate: 0.17, jockeyVenueRate: 0.20, jockeyContinued: false,
+        workoutGrade: "B", workoutNote: "ウッド追い切りで平均的",
+        conditionScore: 74,
+        recentRaces: [
+          { pos: 4, total: 18, name: "マイラーズC",   date: "2026-04-26", surface: "芝", distance: 1600, trackCondition: "良", last3f: 34.2, runningPos4: 8, pace: "ミドル" },
+          { pos: 2, total: 14, name: "スプリングS",   date: "2025-03-22", surface: "芝", distance: 1800, trackCondition: "良", last3f: 34.5, runningPos4: 6, pace: "ミドル" },
+          { pos: 1, total: 12, name: "毎日杯",         date: "2025-03-29", surface: "芝", distance: 1800, trackCondition: "良", last3f: 34.1, runningPos4: 5, pace: "スロー" }
+        ]
+      },
+      {
+        number: 9, name: "シャンパンカラー", age: 6, sex: "牡",
+        weight: 476, weightChange: -2,
+        jockey: "岩田康誠", trainer: "庄野靖志", owner: "オーフェーヴル", breeder: "社台コーポレーション白老ファーム",
+        sire: "イスラボニータ", dam: "ドリームシャンパン", damsire: "キングカメハメハ",
+        odds: 55.0,
+        stats: { wins: 4, second: 5, third: 3, total: 16 },
+        trackPerf: { "良": 90, "稍重": 85, "重": 78, "不良": 65 },
+        surfPerf: { "芝": 94, "ダート": 30 },
+        distPerf: { sprint: 70, mile: 95, middle: 76, long: 52 },
+        coursePerf: { right: 78, left: 96 },
+        venuePref: 96,
+        runningStyle: "差し",
+        avgLast3f: 33.5,
+        paceAdaptability: { high: 72, mid: 90, slow: 92 },
+        jockeyWinRate: 0.10, jockeyVenueRate: 0.12, jockeyContinued: true,
+        workoutGrade: "B", workoutNote: "坂路で手応え良好。状態普通",
+        conditionScore: 70,
+        recentRaces: [
+          { pos: 6, total: 18, name: "ヴィクトリアマイル", date: "2026-05-17", surface: "芝", distance: 1600, trackCondition: "良", last3f: 34.0, runningPos4: 10, pace: "ミドル" },
+          { pos: 4, total: 16, name: "マイラーズC",   date: "2026-04-26", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.8, runningPos4: 8, pace: "ミドル" },
+          { pos: 2, total: 14, name: "富士S",           date: "2025-10-25", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.6, runningPos4: 7, pace: "スロー" }
+        ]
+      },
+      {
+        number: 10, name: "セイウンハーデス", age: 6, sex: "牡",
+        weight: 490, weightChange: +2,
+        jockey: "幸英明", trainer: "武幸四郎", owner: "西川清", breeder: "丸進牧場",
+        sire: "ハービンジャー", dam: "セイウンレジャー", damsire: "スペシャルウィーク",
+        odds: 25.6,
+        stats: { wins: 4, second: 3, third: 4, total: 18 },
+        trackPerf: { "良": 84, "稍重": 88, "重": 88, "不良": 80 },
+        surfPerf: { "芝": 88, "ダート": 42 },
+        distPerf: { sprint: 55, mile: 84, middle: 90, long: 82 },
+        coursePerf: { right: 86, left: 82 },
+        venuePref: 80,
+        runningStyle: "先行",
+        avgLast3f: 34.5,
+        paceAdaptability: { high: 88, mid: 82, slow: 72 },
+        jockeyWinRate: 0.08, jockeyVenueRate: 0.09, jockeyContinued: true,
+        workoutGrade: "B", workoutNote: "芝追い切りで平均的な動き",
+        conditionScore: 68,
+        recentRaces: [
+          { pos: 5, total: 18, name: "マイラーズC",   date: "2026-04-26", surface: "芝", distance: 1600, trackCondition: "良", last3f: 35.0, runningPos4: 3, pace: "ミドル" },
+          { pos: 3, total: 16, name: "金鯱賞",         date: "2026-03-08", surface: "芝", distance: 2000, trackCondition: "稍重", last3f: 34.8, runningPos4: 2, pace: "ミドル" },
+          { pos: 1, total: 12, name: "エプソムC",      date: "2025-06-08", surface: "芝", distance: 1800, trackCondition: "良", last3f: 34.2, runningPos4: 3, pace: "ミドル" }
+        ]
+      },
+      {
+        number: 11, name: "ドラゴンブースト", age: 6, sex: "牡",
+        weight: 494, weightChange: 0,
+        jockey: "丹内祐次", trainer: "大竹正博", owner: "深見敬一", breeder: "追分ファーム",
+        sire: "ロードカナロア", dam: "ドラゴンレディ", damsire: "フジキセキ",
+        odds: 27.9,
+        stats: { wins: 4, second: 4, third: 3, total: 17 },
+        trackPerf: { "良": 85, "稍重": 82, "重": 78, "不良": 70 },
+        surfPerf: { "芝": 86, "ダート": 60 },
+        distPerf: { sprint: 85, mile: 85, middle: 72, long: 55 },
+        coursePerf: { right: 84, left: 84 },
+        venuePref: 82,
+        runningStyle: "逃げ",
+        avgLast3f: 35.0,
+        paceAdaptability: { high: 90, mid: 80, slow: 68 },
+        jockeyWinRate: 0.07, jockeyVenueRate: 0.08, jockeyContinued: true,
+        workoutGrade: "C", workoutNote: "調整程度。現状維持",
+        conditionScore: 65,
+        recentRaces: [
+          { pos: 7, total: 16, name: "マイラーズC",   date: "2026-04-26", surface: "芝", distance: 1600, trackCondition: "良", last3f: 35.5, runningPos4: 1, pace: "ミドル" },
+          { pos: 3, total: 14, name: "阪急杯",         date: "2026-02-22", surface: "芝", distance: 1400, trackCondition: "良", last3f: 34.6, runningPos4: 1, pace: "ハイ" },
+          { pos: 2, total: 12, name: "高松宮記念",     date: "2025-03-23", surface: "芝", distance: 1200, trackCondition: "良", last3f: 35.2, runningPos4: 1, pace: "ハイ" }
+        ]
+      },
+      {
+        number: 12, name: "ウォーターリヒト", age: 4, sex: "牝",
+        weight: 448, weightChange: -4,
+        jockey: "高杉吏麒", trainer: "河内洋", owner: "増田弥生", breeder: "道南牧場",
+        sire: "ハービンジャー", dam: "ウォーターフォール", damsire: "ダイワメジャー",
+        odds: 36.0,
+        stats: { wins: 3, second: 2, third: 1, total: 9 },
+        trackPerf: { "良": 84, "稍重": 86, "重": 82, "不良": 72 },
+        surfPerf: { "芝": 88, "ダート": 35 },
+        distPerf: { sprint: 70, mile: 88, middle: 84, long: 68 },
+        coursePerf: { right: 80, left: 85 },
+        venuePref: 80,
+        runningStyle: "差し",
+        avgLast3f: 33.8,
+        paceAdaptability: { high: 72, mid: 86, slow: 86 },
+        jockeyWinRate: 0.08, jockeyVenueRate: 0.09, jockeyContinued: true,
+        workoutGrade: "B", workoutNote: "ウッドで軽め追い切り",
+        conditionScore: 64,
+        recentRaces: [
+          { pos: 2, total: 18, name: "ヴィクトリアマイル", date: "2026-05-17", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.7, runningPos4: 9, pace: "ミドル" },
+          { pos: 1, total: 14, name: "福島牝馬S",     date: "2026-04-05", surface: "芝", distance: 1800, trackCondition: "稍重", last3f: 34.5, runningPos4: 6, pace: "ミドル" },
+          { pos: 4, total: 16, name: "愛知杯",         date: "2026-01-17", surface: "芝", distance: 2000, trackCondition: "良", last3f: 35.0, runningPos4: 8, pace: "スロー" }
+        ]
+      },
+      {
+        number: 13, name: "オフトレイル", age: 7, sex: "牡",
+        weight: 502, weightChange: 0,
+        jockey: "菅原明良", trainer: "手塚貴久", owner: "シルクレーシング", breeder: "ノーザンファーム",
+        sire: "ジャスタウェイ", dam: "オフトラック", damsire: "ゴールドアリュール",
+        odds: 41.0,
+        stats: { wins: 5, second: 4, third: 3, total: 20 },
+        trackPerf: { "良": 82, "稍重": 82, "重": 80, "不良": 72 },
+        surfPerf: { "芝": 84, "ダート": 65 },
+        distPerf: { sprint: 55, mile: 84, middle: 85, long: 75 },
+        coursePerf: { right: 83, left: 80 },
+        venuePref: 76,
+        runningStyle: "差し",
+        avgLast3f: 34.2,
+        paceAdaptability: { high: 78, mid: 84, slow: 82 },
+        jockeyWinRate: 0.11, jockeyVenueRate: 0.12, jockeyContinued: true,
+        workoutGrade: "B", workoutNote: "平目追い切り。7歳でも動き衰えず",
+        conditionScore: 62,
+        recentRaces: [
+          { pos: 6, total: 16, name: "マイラーズC",   date: "2026-04-26", surface: "芝", distance: 1600, trackCondition: "良", last3f: 34.6, runningPos4: 10, pace: "ミドル" },
+          { pos: 3, total: 14, name: "京都金杯",       date: "2026-01-05", surface: "芝", distance: 1600, trackCondition: "良", last3f: 34.1, runningPos4: 7, pace: "スロー" },
+          { pos: 2, total: 12, name: "マイルCS",        date: "2025-11-16", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.9, runningPos4: 9, pace: "ミドル" }
+        ]
+      },
+      {
+        number: 14, name: "アスクイキゴミ", age: 4, sex: "牡",
+        weight: 474, weightChange: +2,
+        jockey: "岩田望来", trainer: "伊藤圭三", owner: "広尾レース", breeder: "コスモヴューファーム",
+        sire: "ドゥラメンテ", dam: "アスクイキリ", damsire: "ダイワメジャー",
+        odds: 45.0,
+        stats: { wins: 2, second: 3, third: 2, total: 10 },
+        trackPerf: { "良": 82, "稍重": 80, "重": 74, "不良": 62 },
+        surfPerf: { "芝": 88, "ダート": 32 },
+        distPerf: { sprint: 60, mile: 86, middle: 82, long: 65 },
+        coursePerf: { right: 80, left: 85 },
+        venuePref: 78,
+        runningStyle: "差し",
+        avgLast3f: 33.9,
+        paceAdaptability: { high: 74, mid: 84, slow: 82 },
+        jockeyWinRate: 0.09, jockeyVenueRate: 0.10, jockeyContinued: false,
+        workoutGrade: "B", workoutNote: "坂路で標準タイム",
+        conditionScore: 66,
+        recentRaces: [
+          { pos: 3, total: 18, name: "NHKマイルC",    date: "2026-05-03", surface: "芝", distance: 1600, trackCondition: "良", last3f: 34.0, runningPos4: 9, pace: "ミドル" },
+          { pos: 2, total: 14, name: "アーリントンC", date: "2026-04-19", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.8, runningPos4: 7, pace: "スロー" },
+          { pos: 1, total: 12, name: "デイリー杯2歳S", date: "2025-11-08", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.9, runningPos4: 6, pace: "スロー" }
+        ]
+      },
+      {
+        number: 15, name: "サクラトゥジュール", age: 5, sex: "牝",
+        weight: 452, weightChange: 0,
+        jockey: "佐々木大毅", trainer: "平田修", owner: "美原ファーム", breeder: "美原ファーム",
+        sire: "モーリス", dam: "サクラワインハウス", damsire: "ディープインパクト",
+        odds: 50.0,
+        stats: { wins: 3, second: 2, third: 2, total: 12 },
+        trackPerf: { "良": 85, "稍重": 82, "重": 75, "不良": 62 },
+        surfPerf: { "芝": 90, "ダート": 30 },
+        distPerf: { sprint: 68, mile: 88, middle: 82, long: 60 },
+        coursePerf: { right: 80, left: 88 },
+        venuePref: 84,
+        runningStyle: "差し",
+        avgLast3f: 33.7,
+        paceAdaptability: { high: 72, mid: 86, slow: 88 },
+        jockeyWinRate: 0.06, jockeyVenueRate: 0.07, jockeyContinued: true,
+        workoutGrade: "A", workoutNote: "ウッドで好時計。仕上がり良好",
+        conditionScore: 70,
+        recentRaces: [
+          { pos: 5, total: 18, name: "ヴィクトリアマイル", date: "2026-05-17", surface: "芝", distance: 1600, trackCondition: "良", last3f: 34.0, runningPos4: 11, pace: "ミドル" },
+          { pos: 2, total: 14, name: "ターコイズS",   date: "2025-12-13", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.6, runningPos4: 8, pace: "スロー" },
+          { pos: 1, total: 12, name: "フラワーC",     date: "2025-03-22", surface: "芝", distance: 1800, trackCondition: "良", last3f: 34.2, runningPos4: 5, pace: "スロー" }
+        ]
+      },
+      {
+        number: 16, name: "シリウスコルト", age: 4, sex: "牡",
+        weight: 482, weightChange: +6,
+        jockey: "横山和生", trainer: "萩原清", owner: "フォーチュネイトランド", breeder: "吉澤牧場",
+        sire: "ルーラーシップ", dam: "シリウスシャドウ", damsire: "ゴールドアリュール",
+        odds: 60.0,
+        stats: { wins: 3, second: 2, third: 1, total: 9 },
+        trackPerf: { "良": 82, "稍重": 80, "重": 76, "不良": 65 },
+        surfPerf: { "芝": 85, "ダート": 55 },
+        distPerf: { sprint: 65, mile: 85, middle: 82, long: 70 },
+        coursePerf: { right: 82, left: 82 },
+        venuePref: 76,
+        runningStyle: "先行",
+        avgLast3f: 34.8,
+        paceAdaptability: { high: 82, mid: 82, slow: 72 },
+        jockeyWinRate: 0.10, jockeyVenueRate: 0.11, jockeyContinued: false,
+        workoutGrade: "C", workoutNote: "体重増あり。仕上がり若干甘め",
+        conditionScore: 58,
+        recentRaces: [
+          { pos: 8, total: 18, name: "NHKマイルC",    date: "2026-05-03", surface: "芝", distance: 1600, trackCondition: "良", last3f: 35.0, runningPos4: 5, pace: "ミドル" },
+          { pos: 1, total: 12, name: "1勝クラス",      date: "2025-12-06", surface: "芝", distance: 1600, trackCondition: "良", last3f: 34.5, runningPos4: 4, pace: "スロー" },
+          { pos: 2, total: 14, name: "つわぶき賞",     date: "2025-10-11", surface: "芝", distance: 2000, trackCondition: "稍重", last3f: 35.0, runningPos4: 3, pace: "ミドル" }
+        ]
+      },
+      {
+        number: 17, name: "スズハローム", age: 5, sex: "牡",
+        weight: 484, weightChange: 0,
+        jockey: "藤懸貴志", trainer: "吉田直弘", owner: "鈴木隆司", breeder: "日高ランチ",
+        sire: "スクリーンヒーロー", dam: "スズカポイント", damsire: "ゴールドアリュール",
+        odds: 65.0,
+        stats: { wins: 3, second: 3, third: 2, total: 14 },
+        trackPerf: { "良": 80, "稍重": 80, "重": 78, "不良": 68 },
+        surfPerf: { "芝": 82, "ダート": 58 },
+        distPerf: { sprint: 62, mile: 80, middle: 84, long: 78 },
+        coursePerf: { right: 80, left: 80 },
+        venuePref: 75,
+        runningStyle: "差し",
+        avgLast3f: 34.5,
+        paceAdaptability: { high: 75, mid: 82, slow: 80 },
+        jockeyWinRate: 0.07, jockeyVenueRate: 0.08, jockeyContinued: true,
+        workoutGrade: "B", workoutNote: "ウッドで普通に追い切り",
+        conditionScore: 60,
+        recentRaces: [
+          { pos: 4, total: 16, name: "エプソムC",      date: "2025-06-08", surface: "芝", distance: 1800, trackCondition: "良", last3f: 34.4, runningPos4: 7, pace: "ミドル" },
+          { pos: 2, total: 14, name: "中山記念",        date: "2025-03-02", surface: "芝", distance: 1800, trackCondition: "良", last3f: 34.2, runningPos4: 8, pace: "スロー" },
+          { pos: 1, total: 10, name: "2勝クラス",       date: "2024-11-24", surface: "芝", distance: 1800, trackCondition: "良", last3f: 34.8, runningPos4: 5, pace: "スロー" }
+        ]
+      },
+      {
+        number: 18, name: "セフィロ", age: 4, sex: "牝",
+        weight: 450, weightChange: -2,
+        jockey: "三浦皇成", trainer: "西村真幸", owner: "冨岡恒治", breeder: "コスモヴューファーム",
+        sire: "ルーラーシップ", dam: "セフィオン", damsire: "ハービンジャー",
+        odds: 70.0,
+        stats: { wins: 2, second: 3, third: 2, total: 10 },
+        trackPerf: { "良": 82, "稍重": 80, "重": 76, "不良": 65 },
+        surfPerf: { "芝": 86, "ダート": 32 },
+        distPerf: { sprint: 65, mile: 85, middle: 80, long: 62 },
+        coursePerf: { right: 78, left: 86 },
+        venuePref: 78,
+        runningStyle: "差し",
+        avgLast3f: 34.0,
+        paceAdaptability: { high: 72, mid: 84, slow: 86 },
+        jockeyWinRate: 0.09, jockeyVenueRate: 0.10, jockeyContinued: false,
+        workoutGrade: "B", workoutNote: "坂路で軽め。体重減は想定内",
+        conditionScore: 62,
+        recentRaces: [
+          { pos: 4, total: 18, name: "桜花賞",         date: "2026-04-06", surface: "芝", distance: 1600, trackCondition: "良", last3f: 34.1, runningPos4: 9, pace: "ミドル" },
+          { pos: 1, total: 14, name: "クイーンC",      date: "2026-02-15", surface: "芝", distance: 1600, trackCondition: "良", last3f: 33.8, runningPos4: 7, pace: "スロー" },
+          { pos: 2, total: 12, name: "ファンタジーS",  date: "2025-11-01", surface: "芝", distance: 1400, trackCondition: "良", last3f: 33.9, runningPos4: 5, pace: "スロー" }
         ]
       }
     ]
@@ -1119,22 +1085,45 @@ function calcRecentFormScore(recentRaces) {
 function calcHorseFactors(horse, race, condition) {
   const cond = condition || race.trackCondition;
   const distCat = getDistanceCategory(race.distance);
-
   const winRate = horse.stats.wins / Math.max(horse.stats.total, 1);
   const top3Rate = (horse.stats.wins + horse.stats.second + horse.stats.third) / Math.max(horse.stats.total, 1);
 
+  // ペース適性
+  const paceSuitMap = { "ハイ": "high", "ミドル〜ハイ": "high", "ミドル": "mid", "スロー〜ミドル": "mid", "スロー": "slow" };
+  const paceKey = Object.entries(paceSuitMap).find(([k]) => (race.expectedPace || "ミドル").includes(k))?.[1] || "mid";
+  const paceScore = horse.paceAdaptability ? (horse.paceAdaptability[paceKey] || 75) : 75;
+
+  // 上がり3ハロン (33.0秒=100, 36.0秒=50)
+  const last3fScore = horse.avgLast3f ? Math.max(0, Math.min(100, 100 - (horse.avgLast3f - 33.0) * (50 / 3.0))) : 65;
+
+  // コース適性 (左回り/右回り)
+  const isLeftTurn = (race.courseFeature || "").includes("左回り");
+  const courseScore = horse.coursePerf ? (isLeftTurn ? horse.coursePerf.left : horse.coursePerf.right) : 75;
+
+  // 騎手×競馬場勝率
+  const jockeyVenueScore = Math.min((horse.jockeyVenueRate || horse.jockeyWinRate || 0.10) * 400, 100);
+
+  // 状態・調教
+  const workoutMap = { "S": 100, "A": 85, "B": 70, "C": 55 };
+  const condScore = ((horse.conditionScore || 70) + (workoutMap[horse.workoutGrade] || 70)) / 2;
+
   const factors = {
-    winRate:   { label: "勝率",       value: winRate * 100,                      weight: 0.20 },
-    top3Rate:  { label: "複勝率",     value: top3Rate * 100,                     weight: 0.10 },
-    trackCond: { label: "馬場適性",   value: horse.trackPerf[cond] || 65,       weight: 0.20 },
-    distance:  { label: "距離適性",   value: horse.distPerf[distCat] || 65,     weight: 0.20 },
-    recentForm:{ label: "最近の調子", value: calcRecentFormScore(horse.recentRaces), weight: 0.20 },
-    jockey:    { label: "騎手力",     value: Math.min(horse.jockeyWinRate * 400, 100), weight: 0.10 }
+    winRate:     { label: "勝率",       value: winRate * 100,                          weight: 0.12 },
+    top3Rate:    { label: "複勝率",     value: top3Rate * 100,                         weight: 0.06 },
+    trackCond:   { label: "馬場適性",   value: horse.trackPerf[cond] || 65,           weight: 0.11 },
+    distance:    { label: "距離適性",   value: horse.distPerf[distCat] || 65,         weight: 0.11 },
+    coursePerf:  { label: "コース適性", value: courseScore,                             weight: 0.08 },
+    venuePref:   { label: "競馬場適性", value: horse.venuePref || 75,                 weight: 0.07 },
+    recentForm:  { label: "近走実績",   value: calcRecentFormScore(horse.recentRaces), weight: 0.12 },
+    last3f:      { label: "上がり末脚", value: last3fScore,                             weight: 0.08 },
+    paceAdapt:   { label: "ペース適性", value: paceScore,                               weight: 0.08 },
+    jockey:      { label: "騎手総合",   value: Math.min((horse.jockeyWinRate||0.10) * 400, 100), weight: 0.05 },
+    jockeyVenue: { label: "騎手×会場", value: jockeyVenueScore,                        weight: 0.07 },
+    condition:   { label: "状態・調教", value: condScore,                               weight: 0.05 },
   };
 
   let totalScore = 0;
   Object.values(factors).forEach(f => { totalScore += f.value * f.weight; });
-
   return { factors, totalScore };
 }
 
@@ -1198,7 +1187,7 @@ function generatePredictionBasis(pred, race) {
     else if (last.pos <= Math.ceil(last.total * 0.3)) warnings.push(`前走「${last.name}」${last.pos}着`);
     else warnings.push(`前走「${last.name}」${last.pos}着と低調`);
   }
-  // 連勝
+
   const streak = recent.findIndex(r => r.pos !== 1);
   if (streak >= 3) points.push(`${streak}連勝中`);
   else if (streak === 2) points.push('2連勝中');
@@ -1208,21 +1197,57 @@ function generatePredictionBasis(pred, race) {
   else if (wr >= 0.35) points.push(`勝率 ${(wr*100).toFixed(0)}%（${h.stats.wins}/${h.stats.total}戦）`);
   else if (wr < 0.20)  warnings.push(`勝率 ${(wr*100).toFixed(0)}%（${h.stats.wins}/${h.stats.total}戦）と低め`);
 
-  if (f.distance.value >= 88)      points.push('距離適性◎');
-  else if (f.distance.value >= 76) points.push('距離適性○');
-  else if (f.distance.value < 65)  warnings.push('距離適性に不安');
+  if (f.distance && f.distance.value >= 88)      points.push('距離適性◎');
+  else if (f.distance && f.distance.value >= 76) points.push('距離適性○');
+  else if (f.distance && f.distance.value < 65)  warnings.push('距離適性に不安');
 
   const cond = race.trackCondition;
-  if (f.trackCond.value >= 88)      points.push(`${cond}馬場◎`);
-  else if (f.trackCond.value >= 76) points.push(`${cond}馬場○`);
-  else if (f.trackCond.value < 65)  warnings.push(`${cond}馬場は苦手`);
+  if (f.trackCond && f.trackCond.value >= 88)      points.push(`${cond}馬場◎`);
+  else if (f.trackCond && f.trackCond.value >= 76) points.push(`${cond}馬場○`);
+  else if (f.trackCond && f.trackCond.value < 65)  warnings.push(`${cond}馬場は苦手`);
 
-  if (h.jockeyWinRate >= 0.20)      points.push(`${h.jockey}（勝率${(h.jockeyWinRate*100).toFixed(0)}%・上位騎手）`);
-  else if (h.jockeyWinRate >= 0.15) points.push(`${h.jockey}（勝率${(h.jockeyWinRate*100).toFixed(0)}%）`);
-  else                               points.push(h.jockey + '騎手');
+  // コース・競馬場適性
+  if (f.coursePerf && f.coursePerf.value >= 90) points.push('コース(回り)適性◎');
+  if (f.venuePref && f.venuePref.value >= 92)   points.push(`${race.venue}が得意コース`);
+  else if (f.venuePref && f.venuePref.value < 72) warnings.push(`${race.venue}での実績薄`);
 
-  if (pred.edgeVsMarket > 0.08)      points.push(`市場比 +${(pred.edgeVsMarket*100).toFixed(0)}pt の妙味（バリュー）`);
-  else if (pred.edgeVsMarket > 0.02) points.push('やや妙味あり');
+  // 上がり末脚
+  if (h.avgLast3f) {
+    if (h.avgLast3f <= 33.4)      points.push(`上がり末脚鋭い（平均${h.avgLast3f}秒）`);
+    else if (h.avgLast3f >= 35.0) warnings.push(`末脚やや鈍め（平均${h.avgLast3f}秒）`);
+  }
+
+  // ペース適性
+  if (f.paceAdapt && f.paceAdapt.value >= 88) points.push(`${race.expectedPace || 'ミドル'}ペース適性◎`);
+
+  // 騎手
+  const jwr = h.jockeyWinRate || 0;
+  const jvr = h.jockeyVenueRate || jwr;
+  if (jwr >= 0.20)      points.push(`${h.jockey}（全体${(jwr*100).toFixed(0)}%・会場${(jvr*100).toFixed(0)}%）`);
+  else if (jwr >= 0.15) points.push(`${h.jockey}（勝率${(jwr*100).toFixed(0)}%）`);
+  else                   points.push(h.jockey + '騎手');
+  if (h.jockeyContinued === false) warnings.push('乗り替わり');
+
+  // 血統
+  if (h.sire) {
+    const sireLong = ['キタサンブラック','ドゥラメンテ','エピファネイア'].includes(h.sire);
+    const sireMile = ['ロードカナロア','モーリス','イスラボニータ','ダイワメジャー'].includes(h.sire);
+    if (sireMile && race.distance <= 1600) points.push(`父${h.sire}・マイル血統◎`);
+    else if (sireLong && race.distance >= 2000) points.push(`父${h.sire}・スタミナ血統◎`);
+    else points.push(`父${h.sire}`);
+  }
+
+  // 調教
+  if (h.workoutGrade === 'S')      points.push('追い切り最高評価S');
+  else if (h.workoutGrade === 'A') points.push('追い切り評価A・状態良好');
+  else if (h.workoutGrade === 'C') warnings.push('調教評価C・仕上がり甘め');
+
+  // コンディション
+  if (h.conditionScore >= 85)      points.push(`状態指数${h.conditionScore}・ピーク水準`);
+  else if (h.conditionScore < 60)  warnings.push(`状態指数${h.conditionScore}・やや下降気味`);
+
+  if (pred.edgeVsMarket > 0.08)       points.push(`市場比 +${(pred.edgeVsMarket*100).toFixed(0)}pt の妙味（バリュー）`);
+  else if (pred.edgeVsMarket > 0.02)  points.push('やや妙味あり');
   else if (pred.edgeVsMarket < -0.08) warnings.push(`市場人気(${h.odds}倍)がモデル評価を大きく上回る`);
 
   return { points, warnings };
@@ -1487,6 +1512,12 @@ function renderHorseTable(predictions) {
 
     const basis = generatePredictionBasis(pred, currentRace);
     const briefReason = basis.points.slice(0, 2).join(' / ');
+    const styleMap = { '逃げ':'escape','先行':'lead','差し':'stalk','追込':'close' };
+    const styleClass = styleMap[h.runningStyle] || 'stalk';
+    const workoutClass = `workout-${h.workoutGrade || 'B'}`;
+    const bloodline = h.sire ? `父${h.sire}${h.damsire ? ' × 母父'+h.damsire : ''}` : '';
+    const jvr = h.jockeyVenueRate ? `(会場${(h.jockeyVenueRate*100).toFixed(0)}%)` : '';
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>
@@ -1494,10 +1525,20 @@ function renderHorseTable(predictions) {
       </td>
       <td>
         <div class="horse-name ${rankClass}">${rank < 3 ? ['🥇','🥈','🥉'][rank]+' ' : ''}${h.name}</div>
-        <div class="horse-detail">${h.age}歳${h.sex} ${h.weight}kg / ${h.trainer}厩舎</div>
+        <div class="horse-detail">${h.age}歳${h.sex} ${h.weight}kg${h.weightChange !== undefined ? (h.weightChange >= 0 ? '+'+h.weightChange : h.weightChange)+'kg' : ''} / ${h.trainer}厩舎</div>
+        ${bloodline ? `<div class="horse-detail" style="margin-top:2px;color:#9b8ec0">${bloodline}</div>` : ''}
+        <div style="margin-top:3px">
+          ${h.runningStyle ? `<span class="style-badge style-${styleClass}">${h.runningStyle}</span>` : ''}
+          ${h.workoutGrade ? `<span class="workout-badge ${workoutClass}">調教${h.workoutGrade}</span>` : ''}
+          ${h.conditionScore ? `<span style="font-size:0.68rem;color:${h.conditionScore>=80?'#27ae60':h.conditionScore>=65?'#5dade2':'#e67e22'}">状態${h.conditionScore}</span>` : ''}
+        </div>
         ${briefReason ? `<div class="horse-detail" style="margin-top:3px;color:#5dade2">▶ ${briefReason}</div>` : ''}
       </td>
-      <td><div style="font-weight:bold">${h.jockey}</div></td>
+      <td>
+        <div style="font-weight:bold">${h.jockey}</div>
+        ${jvr ? `<div class="horse-detail">${jvr}</div>` : ''}
+        ${h.jockeyContinued === false ? `<div class="horse-detail" style="color:#e67e22">乗替</div>` : ''}
+      </td>
       <td>
         <div style="font-size:0.9rem">${h.stats.wins}-${h.stats.second}-${h.stats.third}</div>
         <div class="horse-detail">${h.stats.total}戦</div>
@@ -1595,7 +1636,7 @@ function renderFactorDetail(predictions) {
   function updateFactors(idx) {
     const pred = predictions[idx];
     const container = document.getElementById('factor-detail');
-    const factorColors = ['#f1c40f','#e74c3c','#27ae60','#3498db','#9b59b6','#e67e22'];
+    const factorColors = ['#f1c40f','#e74c3c','#27ae60','#3498db','#9b59b6','#e67e22','#1abc9c','#e91e63','#ff9800','#607d8b','#8bc34a','#00bcd4'];
     let html = '';
     Object.values(pred.factors).forEach((f, i) => {
       html += `
