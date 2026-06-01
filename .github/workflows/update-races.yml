@@ -1,0 +1,56 @@
+name: 出馬表自動更新
+
+on:
+  schedule:
+    # 木曜・金曜 20:00 JST (= 11:00 UTC) — JRAが出馬表を確定するタイミング
+    - cron: '0 11 * * 4,5'
+  workflow_dispatch:
+    inputs:
+      force_check:
+        description: '強制チェック（変更なくても実行）'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: scripts/package.json
+
+      - name: Install dependencies
+        run: |
+          cd scripts
+          npm install
+
+      - name: 出馬表チェック & 更新
+        run: node scripts/update-races.js
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FORCE_CHECK: ${{ github.event.inputs.force_check || 'false' }}
+
+      - name: 変更があればコミット & プッシュ
+        run: |
+          git config user.email "keiba-bot@github-actions.com"
+          git config user.name "競馬予想Bot"
+          git add index.html
+          if git diff --staged --quiet; then
+            echo "変更なし — スキップ"
+          else
+            DATE=$(TZ='Asia/Tokyo' date '+%Y-%m-%d %H:%M JST')
+            git commit -m "自動更新: 出馬表データ更新 ${DATE}"
+            git push
+            echo "デプロイ完了"
+          fi

@@ -1,0 +1,9 @@
+{
+  "name": "keiba-race-updater",
+  "version": "1.0.0",
+  "description": "JRA出馬表自動取得・予想データ生成スクリプト",
+  "main": "update-races.js",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0"
+  }
+}
