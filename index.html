@@ -3417,7 +3417,69 @@ function optimizeBetting(predictions, budget, targetReturn, race) {
 const COLORS = [
   '#f1c40f','#e74c3c','#3498db','#27ae60','#9b59b6',
   '#e67e22','#1abc9c','#95a5a6','#d35400','#7f8c8d',
-  '#2c3e50','#c0392b'
+  '#2c3e50','#c0392b',
+  {
+  id: "hakodate_ss20260705",
+  name: "函館スプリントS",
+  venue: "函館競馬場",
+  grade: "G3",
+  raceNo: "11R",
+  date: "2026-07-05",
+  distance: 1200,
+  surface: "芝",
+  trackCondition: "良",
+  weather: "晴",
+  courseFeature: "右回り・函館",
+  expectedPace: "ハイ",
+  desc: "函館芝1200m重賞。スプリント戦のスペシャリスト集結。ハイペース予想で差し・追込馬の活躍が期待される。",
+  horses: [
+    {
+      number: 1,
+      name: "馬名未確認",
+      age: 4,
+      sex: "牡",
+      weight: 480,
+      weightChange: 0,
+      jockey: "騎手名未確認",
+      trainer: "調教師名未確認",
+      owner: "馬主名未確認",
+      breeder: "生産牧場未確認",
+      sire: "父馬名未確認",
+      dam: "母馬名未確認",
+      damsire: "母父馬名未確認",
+      odds: 0,
+      stats: { wins: 2, second: 1, third: 1, total: 6 },
+      trackPerf: { "良": 80, "稍重": 75, "重": 70, "不良": 60 },
+      surfPerf: { "芝": 85, "ダート": 40 },
+      distPerf: { sprint: 85, mile: 70, middle: 65, long: 50 },
+      coursePerf: { right: 82, left: 75 },
+      venuePref: 78,
+      runningStyle: "差し",
+      avgLast3f: 34.5,
+      paceAdaptability: { high: 80, mid: 75, slow: 70 },
+      jockeyWinRate: 0.12,
+      jockeyVenueRate: 0.14,
+      jockeyContinued: true,
+      workoutGrade: "B",
+      workoutNote: "標準的な仕上がり",
+      conditionScore: 72,
+      recentRaces: [
+        {
+          pos: 3,
+          total: 12,
+          name: "前走レース名",
+          date: "2026-05-01",
+          surface: "芝",
+          distance: 1600,
+          trackCondition: "良",
+          last3f: 34.5,
+          runningPos4: 5,
+          pace: "ミドル"
+        }
+      ]
+    }
+  ]
+}
 ];
 
 function fmtPct(v) { return (v * 100).toFixed(1) + '%'; }
